@@ -14,9 +14,7 @@
 
 package defaults
 
-import (
-	"github.com/xgfone/defaults/assists"
-)
+import "github.com/xgfone/go-defaults/assists"
 
 var (
 	// RuleValidator is used to validate whether a value conforms with the rule.

@@ -20,11 +20,6 @@ import (
 	"time"
 )
 
-// TimeNow is the alias of TimeNowFunc.
-//
-// DEPRECATED! Please use TimeNowFunc instead.
-var TimeNow = TimeNowFunc
-
 // Pre-define some global variables about time.
 var (
 	TimeFormat   = NewValueWithValidation(time.RFC3339Nano, validateTimeFormat)

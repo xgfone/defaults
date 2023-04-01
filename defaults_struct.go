@@ -18,7 +18,7 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/xgfone/defaults/assists"
+	"github.com/xgfone/go-defaults/assists"
 )
 
 var (
