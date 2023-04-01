@@ -15,55 +15,7 @@
 // Package defaults provides some global default values.
 package defaults
 
-import (
-	"errors"
-	"sync/atomic"
-	"time"
-)
-
-// Pre-define some global variables about time.
-var (
-	TimeNow      = NewValueWithValidation(time.Now, validateTimeNow)
-	TimeFormat   = NewValueWithValidation(time.RFC3339Nano, validateTimeFormat)
-	TimeFormats  = NewValueWithValidation([]string{time.RFC3339Nano, "2006-01-02 15:04:05"}, validateTimeFormats)
-	TimeLocation = NewValueWithValidation(time.UTC, validateTimeLocation)
-)
-
-func validateTimeNow(f func() time.Time) error {
-	if f == nil {
-		return errors.New("the time now function must not be nil")
-	}
-	return nil
-}
-
-func validateTimeFormat(s string) error {
-	if s == "" {
-		return errors.New("time format layout must not be empty")
-	}
-	return nil
-}
-
-func validateTimeLocation(loc *time.Location) error {
-	if loc == nil {
-		return errors.New("time location must not be nil")
-	}
-	return nil
-}
-
-func validateTimeFormats(ss []string) error {
-	if len(ss) == 0 {
-		return errors.New("time format layouts must not be empty")
-	}
-	for _, s := range ss {
-		if s == "" {
-			return errors.New("time format layouts must not be empty")
-		}
-	}
-	return nil
-}
-
-// Now returns the current time by using TimeNow and TimeLocation.
-func Now() time.Time { return TimeNow.Get()().In(TimeLocation.Get()) }
+import "sync/atomic"
 
 type valuer[T any] struct {
 	Value T
