@@ -46,9 +46,10 @@ func StructFieldNameFuncWithTags(tags ...string) func(reflect.StructField) (name
 				name = value
 			}
 
-			break
+			return
 		}
 
+		name = sf.Name
 		return
 	}
 }
