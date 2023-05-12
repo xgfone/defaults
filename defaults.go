@@ -57,6 +57,19 @@ func (v *Value[T]) Set(new T) {
 	v.value.Store(valuer[T]{Value: new})
 }
 
+// Swap sets the value to new thread-safely and returns the old value.
+//
+// It will panic if failing to validate the new value.
+func (v *Value[T]) Swap(new T) (old T) {
+	if err := v.Validate(new); err != nil {
+		panic(err)
+	}
+	if value := v.value.Swap(valuer[T]{Value: new}); value != nil {
+		old = value.(valuer[T]).Value
+	}
+	return
+}
+
 // Validate validate whether the input value is valid.
 func (v *Value[T]) Validate(value T) error {
 	if v.verify == nil {
