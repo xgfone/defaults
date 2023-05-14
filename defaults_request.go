@@ -24,6 +24,10 @@ import (
 )
 
 var (
+	// HeaderXRequestID is used by GetRequestIDFunc to try
+	// to get the request id from the http request.
+	HeaderXRequestID = "X-Request-Id"
+
 	// GetRequestIDFunc is used to get the unique request session id.
 	//
 	// For the default implementation, it only detects req
@@ -32,10 +36,12 @@ var (
 	//	*http.Request
 	//	interface{ RequestID() string }
 	//	interface{ GetRequestID() string }
+	//  interface{ Request() *http.Request }
 	//	interface{ GetRequest() *http.Request }
+	//  interface{ HTTPRequest() *http.Request }
 	//	interface{ GetHTTPRequest() *http.Request }
 	//
-	// For *http.Request, it will returns the header "X-Request-Id".
+	// For *http.Request, it will returns the header HeaderXRequestID.
 	//
 	// Return "" instead if not found.
 	GetRequestIDFunc = NewValueWithValidation(getRequestID, reqidValidateFunc)
@@ -46,7 +52,9 @@ var (
 	// and supports the types or interfaces:
 	//
 	//	*http.Request
+	//  interface{ Request() *http.Request }
 	//	interface{ GetRequest() *http.Request }
+	//  interface{ HTTPRequest() *http.Request }
 	//	interface{ GetHTTPRequest() *http.Request }
 	//	interface{ RemoteAddr() string }
 	//	interface{ RemoteAddr() net.IP }
@@ -82,7 +90,7 @@ func raddrValidateFunc(f func(context.Context, interface{}) (netip.Addr, error))
 func getRequestID(ctx context.Context, req interface{}) string {
 	switch r := req.(type) {
 	case *http.Request:
-		return r.Header.Get("X-Request-Id")
+		return r.Header.Get(HeaderXRequestID)
 
 	case interface{ RequestID() string }:
 		return r.RequestID()
@@ -90,11 +98,17 @@ func getRequestID(ctx context.Context, req interface{}) string {
 	case interface{ GetRequestID() string }:
 		return r.GetRequestID()
 
+	case interface{ Request() *http.Request }:
+		return r.Request().Header.Get(HeaderXRequestID)
+
+	case interface{ HTTPRequest() *http.Request }:
+		return r.HTTPRequest().Header.Get(HeaderXRequestID)
+
 	case interface{ GetRequest() *http.Request }:
-		return r.GetRequest().Header.Get("X-Request-Id")
+		return r.GetRequest().Header.Get(HeaderXRequestID)
 
 	case interface{ GetHTTPRequest() *http.Request }:
-		return r.GetHTTPRequest().Header.Get("X-Request-Id")
+		return r.GetHTTPRequest().Header.Get(HeaderXRequestID)
 
 	default:
 		return ""
@@ -105,6 +119,12 @@ func getRemoteAddr(ctx context.Context, req interface{}) (addr netip.Addr, err e
 	switch v := req.(type) {
 	case *http.Request:
 		return netip.ParseAddr(v.RemoteAddr)
+
+	case interface{ Request() *http.Request }:
+		return netip.ParseAddr(v.Request().RemoteAddr)
+
+	case interface{ HTTPRequest() *http.Request }:
+		return netip.ParseAddr(v.HTTPRequest().RemoteAddr)
 
 	case interface{ GetRequest() *http.Request }:
 		return netip.ParseAddr(v.GetRequest().RemoteAddr)
@@ -125,7 +145,7 @@ func getRemoteAddr(ctx context.Context, req interface{}) (addr netip.Addr, err e
 		return v.RemoteAddr(), nil
 
 	default:
-		panic(fmt.Errorf("GetSourceAddr: unknown type %T", req))
+		panic(fmt.Errorf("GetRemoteAddr: unknown type %T", req))
 	}
 }
 
