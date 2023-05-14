@@ -57,9 +57,8 @@ var (
 	//  interface{ HTTPRequest() *http.Request }
 	//	interface{ GetHTTPRequest() *http.Request }
 	//	interface{ RemoteAddr() string }
-	//	interface{ RemoteAddr() net.IP }
 	//	interface{ RemoteAddr() net.Addr }
-	//	interface{ RemoteAddr() netip.Addr }
+	//	interface{ RemoteAddr() netip.AddrPort }
 	GetRemoteAddrFunc = NewValueWithValidation(getRemoteAddr, raddrValidateFunc)
 )
 
@@ -69,7 +68,7 @@ func GetRequestID(ctx context.Context, req interface{}) string {
 }
 
 // GetRemoteAddr is the proxy of GetRemoteAddrFunc to call the function.
-func GetRemoteAddr(ctx context.Context, req interface{}) (netip.Addr, error) {
+func GetRemoteAddr(ctx context.Context, req interface{}) (string, error) {
 	return GetRemoteAddrFunc.Get()(ctx, req)
 }
 
@@ -80,7 +79,7 @@ func reqidValidateFunc(f func(context.Context, interface{}) string) error {
 	return nil
 }
 
-func raddrValidateFunc(f func(context.Context, interface{}) (netip.Addr, error)) error {
+func raddrValidateFunc(f func(context.Context, interface{}) (string, error)) error {
 	if f == nil {
 		return errors.New("GetRemoteAddr function must not be nil")
 	}
@@ -115,51 +114,33 @@ func getRequestID(ctx context.Context, req interface{}) string {
 	}
 }
 
-func getRemoteAddr(ctx context.Context, req interface{}) (addr netip.Addr, err error) {
+func getRemoteAddr(ctx context.Context, req interface{}) (addr string, err error) {
 	switch v := req.(type) {
 	case *http.Request:
-		return netip.ParseAddr(v.RemoteAddr)
-
-	case interface{ Request() *http.Request }:
-		return netip.ParseAddr(v.Request().RemoteAddr)
-
-	case interface{ HTTPRequest() *http.Request }:
-		return netip.ParseAddr(v.HTTPRequest().RemoteAddr)
-
-	case interface{ GetRequest() *http.Request }:
-		return netip.ParseAddr(v.GetRequest().RemoteAddr)
-
-	case interface{ GetHTTPRequest() *http.Request }:
-		return netip.ParseAddr(v.GetHTTPRequest().RemoteAddr)
+		return v.RemoteAddr, nil
 
 	case interface{ RemoteAddr() string }:
-		return netip.ParseAddr(v.RemoteAddr())
-
-	case interface{ RemoteAddr() net.IP }:
-		return ip2addr(v.RemoteAddr()), nil
+		return v.RemoteAddr(), nil
 
 	case interface{ RemoteAddr() net.Addr }:
-		return netip.ParseAddr(v.RemoteAddr().String())
+		return v.RemoteAddr().String(), nil
 
-	case interface{ RemoteAddr() netip.Addr }:
-		return v.RemoteAddr(), nil
+	case interface{ RemoteAddr() netip.AddrPort }:
+		return v.RemoteAddr().String(), nil
+
+	case interface{ Request() *http.Request }:
+		return v.Request().RemoteAddr, nil
+
+	case interface{ HTTPRequest() *http.Request }:
+		return v.HTTPRequest().RemoteAddr, nil
+
+	case interface{ GetRequest() *http.Request }:
+		return v.GetRequest().RemoteAddr, nil
+
+	case interface{ GetHTTPRequest() *http.Request }:
+		return v.GetHTTPRequest().RemoteAddr, nil
 
 	default:
 		panic(fmt.Errorf("GetRemoteAddr: unknown type %T", req))
 	}
-}
-
-func ip2addr(ip net.IP) (addr netip.Addr) {
-	switch len(ip) {
-	case net.IPv4len:
-		var b [4]byte
-		copy(b[:], ip)
-		addr = netip.AddrFrom4(b)
-
-	case net.IPv6len:
-		var b [16]byte
-		copy(b[:], ip)
-		addr = netip.AddrFrom16(b)
-	}
-	return
 }
