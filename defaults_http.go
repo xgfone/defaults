@@ -36,6 +36,20 @@ var (
 	//   2. Check whether it implements the interface{ Unwrap() http.ResponseWriter } and retry 1.
 	//   3. Return 200 instead.
 	GetHTTPStatusCodeFunc = NewValueWithValidation(getHTTPStatusCode, getHTTPStatusCodeValidateFunc)
+
+	// GetHTTPRequestFunc is used to get the http request from the request context.
+	//
+	// For the default implementation, it only detects req
+	// and supports the types or interfaces:
+	//
+	//	*http.Request
+	//	interface{ Request() *http.Request }
+	//	interface{ HTTPRequest() *http.Request }
+	//	interface{ GetRequest() *http.Request }
+	//	interface{ GetHTTPRequest() *http.Request }
+	//
+	// If not found, return nil.
+	GetHTTPRequestFunc = NewValueWithValidation(getHTTPRequest, reqValidateFunc)
 )
 
 // HTTPIsResponded is the proxy of HTTPIsRespondedFunc to call the function.
@@ -46,6 +60,11 @@ func HTTPIsResponded(ctx context.Context, w http.ResponseWriter, r *http.Request
 // GetHTTPStatusCode is the proxy of GetHTTPStatusCodeFunc to call the function.
 func GetHTTPStatusCode(ctx context.Context, w http.ResponseWriter, r *http.Request) int {
 	return GetHTTPStatusCodeFunc.Get()(ctx, w, r)
+}
+
+// GetHTTPRequest is the proxy of GetHTTPRequestFunc to call the function.
+func GetHTTPRequest(ctx context.Context, req interface{}) *http.Request {
+	return GetHTTPRequestFunc.Get()(ctx, req)
 }
 
 func httpIsResponded(ctx context.Context, w http.ResponseWriter, r *http.Request) bool {
@@ -86,4 +105,33 @@ func getHTTPStatusCodeValidateFunc(f func(context.Context, http.ResponseWriter, 
 		return errors.New("GetHTTPStatusCode function must not be nil")
 	}
 	return nil
+}
+
+func reqValidateFunc(f func(context.Context, interface{}) *http.Request) error {
+	if f == nil {
+		return errors.New("GetHTTPRequest function must not be nil")
+	}
+	return nil
+}
+
+func getHTTPRequest(ctx context.Context, req interface{}) *http.Request {
+	switch r := req.(type) {
+	case *http.Request:
+		return r
+
+	case interface{ Request() *http.Request }:
+		return r.Request()
+
+	case interface{ HTTPRequest() *http.Request }:
+		return r.HTTPRequest()
+
+	case interface{ GetRequest() *http.Request }:
+		return r.GetRequest()
+
+	case interface{ GetHTTPRequest() *http.Request }:
+		return r.GetHTTPRequest()
+
+	default:
+		return nil
+	}
 }
