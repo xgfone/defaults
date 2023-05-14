@@ -68,7 +68,7 @@ func GetRequestID(ctx context.Context, req interface{}) string {
 }
 
 // GetRemoteAddr is the proxy of GetRemoteAddrFunc to call the function.
-func GetRemoteAddr(ctx context.Context, req interface{}) (string, error) {
+func GetRemoteAddr(ctx context.Context, req interface{}) string {
 	return GetRemoteAddrFunc.Get()(ctx, req)
 }
 
@@ -79,7 +79,7 @@ func reqidValidateFunc(f func(context.Context, interface{}) string) error {
 	return nil
 }
 
-func raddrValidateFunc(f func(context.Context, interface{}) (string, error)) error {
+func raddrValidateFunc(f func(context.Context, interface{}) string) error {
 	if f == nil {
 		return errors.New("GetRemoteAddr function must not be nil")
 	}
@@ -114,31 +114,31 @@ func getRequestID(ctx context.Context, req interface{}) string {
 	}
 }
 
-func getRemoteAddr(ctx context.Context, req interface{}) (addr string, err error) {
+func getRemoteAddr(ctx context.Context, req interface{}) string {
 	switch v := req.(type) {
 	case *http.Request:
-		return v.RemoteAddr, nil
+		return v.RemoteAddr
 
 	case interface{ RemoteAddr() string }:
-		return v.RemoteAddr(), nil
+		return v.RemoteAddr()
 
 	case interface{ RemoteAddr() net.Addr }:
-		return v.RemoteAddr().String(), nil
+		return v.RemoteAddr().String()
 
 	case interface{ RemoteAddr() netip.AddrPort }:
-		return v.RemoteAddr().String(), nil
+		return v.RemoteAddr().String()
 
 	case interface{ Request() *http.Request }:
-		return v.Request().RemoteAddr, nil
+		return v.Request().RemoteAddr
 
 	case interface{ HTTPRequest() *http.Request }:
-		return v.HTTPRequest().RemoteAddr, nil
+		return v.HTTPRequest().RemoteAddr
 
 	case interface{ GetRequest() *http.Request }:
-		return v.GetRequest().RemoteAddr, nil
+		return v.GetRequest().RemoteAddr
 
 	case interface{ GetHTTPRequest() *http.Request }:
-		return v.GetHTTPRequest().RemoteAddr, nil
+		return v.GetHTTPRequest().RemoteAddr
 
 	default:
 		panic(fmt.Errorf("GetRemoteAddr: unknown type %T", req))
