@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package defaults provides some global default values.
 package defaults
 
 import (
