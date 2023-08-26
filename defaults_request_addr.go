@@ -30,23 +30,15 @@ var (
 	//
 	//	interface{ RemoteAddr() string }
 	//	interface{ RemoteAddr() net.Addr }
-	//	interface{ RemoteAddr() netip.AddrPort }
 	//
 	// or, retry to get the http request by GetHTTPRequestFunc
 	// and return the field RemoteAddr.
-	GetRemoteAddrFunc = NewValueWithValidation(getRemoteAddr, raddrValidateFunc)
+	GetRemoteAddrFunc = NewValueWithValidation(getRemoteAddr, fActxAifaceR1[string]("GetRemoteAddr"))
 )
 
 // GetRemoteAddr is the proxy of GetRemoteAddrFunc to call the function.
 func GetRemoteAddr(ctx context.Context, req interface{}) string {
 	return GetRemoteAddrFunc.Get()(ctx, req)
-}
-
-func raddrValidateFunc(f func(context.Context, interface{}) string) error {
-	if f == nil {
-		return errors.New("GetRemoteAddr function must not be nil")
-	}
-	return nil
 }
 
 func getRemoteAddr(ctx context.Context, req interface{}) string {
@@ -55,9 +47,6 @@ func getRemoteAddr(ctx context.Context, req interface{}) string {
 		return v.RemoteAddr()
 
 	case interface{ RemoteAddr() net.Addr }:
-		return v.RemoteAddr().String()
-
-	case interface{ RemoteAddr() netip.AddrPort }:
 		return v.RemoteAddr().String()
 
 	default:

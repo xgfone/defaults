@@ -14,10 +14,7 @@
 
 package defaults
 
-import (
-	"context"
-	"errors"
-)
+import "context"
 
 var (
 	// HeaderXRequestID is used by GetRequestIDFunc to try
@@ -32,23 +29,14 @@ var (
 	//	interface{ RequestID() string }
 	//	interface{ GetRequestID() string }
 	//
-	// or, retry to get the http request by GetHTTPRequestFunc
-	// and return the header HeaderXRequestID.
-	//
+	// Or, retry to get http.Request by GetHTTPRequest and return the header HeaderXRequestID.
 	// Return "" instead if not found.
-	GetRequestIDFunc = NewValueWithValidation(getRequestID, reqidValidateFunc)
+	GetRequestIDFunc = NewValueWithValidation(getRequestID, fActxAifaceR1[string]("GetRequestID"))
 )
 
 // GetRequestID is the proxy of GetRequestIDFunc to call the function.
 func GetRequestID(ctx context.Context, req interface{}) string {
 	return GetRequestIDFunc.Get()(ctx, req)
-}
-
-func reqidValidateFunc(f func(context.Context, interface{}) string) error {
-	if f == nil {
-		return errors.New("GetRequestID function must not be nil")
-	}
-	return nil
 }
 
 func getRequestID(ctx context.Context, req interface{}) string {

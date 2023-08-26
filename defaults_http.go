@@ -16,7 +16,6 @@ package defaults
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -27,7 +26,7 @@ var (
 	//   1. Check whether it implements the interface{ WroteHeader() bool } and return it.
 	//   2. Check whether it implements the interface{ Unwrap() http.ResponseWriter } and retry 1.
 	//   3. Return false instead.
-	HTTPIsRespondedFunc = NewValueWithValidation(httpIsResponded, httpIsRespondedValidateFunc)
+	HTTPIsRespondedFunc = NewValueWithValidation(httpIsResponded, fhttprespR[bool]("HTTPIsResponded"))
 
 	// GetHTTPStatusCodeFunc is used to get the status code of the http response.
 	//
@@ -35,7 +34,7 @@ var (
 	//   1. Check whether it implements the interface{ StatusCode() int } and return it.
 	//   2. Check whether it implements the interface{ Unwrap() http.ResponseWriter } and retry 1.
 	//   3. Return 200 instead.
-	GetHTTPStatusCodeFunc = NewValueWithValidation(getHTTPStatusCode, getHTTPStatusCodeValidateFunc)
+	GetHTTPStatusCodeFunc = NewValueWithValidation(getHTTPStatusCode, fhttprespR[int]("GetHTTPStatusCode"))
 
 	// GetHTTPRequestFunc is used to get the http request from the request context.
 	//
@@ -49,7 +48,7 @@ var (
 	//	interface{ GetHTTPRequest() *http.Request }
 	//
 	// If not found, return nil.
-	GetHTTPRequestFunc = NewValueWithValidation(getHTTPRequest, reqValidateFunc)
+	GetHTTPRequestFunc = NewValueWithValidation(getHTTPRequest, fActxAifaceR1[*http.Request]("GetHTTPRequest"))
 )
 
 // HTTPIsResponded is the proxy of HTTPIsRespondedFunc to call the function.
@@ -91,27 +90,6 @@ func getHTTPStatusCode(ctx context.Context, w http.ResponseWriter, r *http.Reque
 			return 200
 		}
 	}
-}
-
-func httpIsRespondedValidateFunc(f func(context.Context, http.ResponseWriter, *http.Request) bool) error {
-	if f == nil {
-		return errors.New("HTTPIsResponded function must not be nil")
-	}
-	return nil
-}
-
-func getHTTPStatusCodeValidateFunc(f func(context.Context, http.ResponseWriter, *http.Request) int) error {
-	if f == nil {
-		return errors.New("GetHTTPStatusCode function must not be nil")
-	}
-	return nil
-}
-
-func reqValidateFunc(f func(context.Context, interface{}) *http.Request) error {
-	if f == nil {
-		return errors.New("GetHTTPRequest function must not be nil")
-	}
-	return nil
 }
 
 func getHTTPRequest(ctx context.Context, req interface{}) *http.Request {

@@ -14,13 +14,11 @@
 
 package defaults
 
-import "errors"
-
 var (
 	// HandlePanicFunc is used to handle the panic value returned by recover().
 	//
 	// Default: log.Printf("wrap a panic: %+v", recoverValue)
-	HandlePanicFunc = NewValueWithValidation(handlePanic, handlePanicValidation)
+	HandlePanicFunc = NewValueWithValidation(handlePanic, fA1Validation[interface{}]("HandlePanic"))
 )
 
 // HandlePanic is the proxy of HandlePanicFunc to call the funciton.
@@ -30,11 +28,4 @@ func HandlePanic(r interface{}) {
 
 func handlePanic(r interface{}) {
 	logkv("wrap a panic", "panic", r, "stacks", GetStacks(2))
-}
-
-func handlePanicValidation(f func(interface{})) error {
-	if f == nil {
-		return errors.New("HandlePanic function must not be nil")
-	}
-	return nil
 }

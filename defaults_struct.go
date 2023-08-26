@@ -15,7 +15,6 @@
 package defaults
 
 import (
-	"errors"
 	"reflect"
 
 	"github.com/xgfone/go-defaults/assists"
@@ -46,15 +45,9 @@ var (
 	//	    return
 	//	})
 	//
-	StructFieldNameFunc = NewValueWithValidation(assists.StructFieldNameFuncWithTags("json"), validateStructFieldName)
+	StructFieldNameFunc = NewValueWithValidation(assists.StructFieldNameFuncWithTags("json"),
+		fA1R2Validation[reflect.StructField, string, string]("StructFieldName"))
 )
-
-func validateStructFieldName(f func(reflect.StructField) (name string, arg string)) (err error) {
-	if f == nil {
-		err = errors.New("StructFieldNameFunc: the get function must not be nil")
-	}
-	return
-}
 
 // GetStructFieldName is the proxy of StructFieldNameFunc to call the function,
 // just like StructFieldNameFunc.Get()(sf).

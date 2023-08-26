@@ -15,7 +15,6 @@
 package defaults
 
 import (
-	"errors"
 	"fmt"
 	"runtime"
 	"strings"
@@ -23,10 +22,10 @@ import (
 
 var (
 	// TrimPkgFileFunc is used to trim the prefix of the package file path.
-	TrimPkgFileFunc = NewValueWithValidation(trimPkgFile, trimPkgFileValidation)
+	TrimPkgFileFunc = NewValueWithValidation(trimPkgFile, fA1R1Validation[string, string]("TrimPkgFile"))
 
 	// GetStacksFunc is used to get the stacks of the function calling.
-	GetStacksFunc = NewValueWithValidation(getStacks, getStacksValidation)
+	GetStacksFunc = NewValueWithValidation(getStacks, fA1R1Validation[int, []string]("GetStacks"))
 )
 
 // GetStacks is the proxy of GetStacksFunc to call the funciton.
@@ -64,13 +63,6 @@ func getStacks(skip int) []string {
 	return stacks
 }
 
-func getStacksValidation(f func(skip int) []string) error {
-	if f == nil {
-		return errors.New("GetStacks function must not be nil")
-	}
-	return nil
-}
-
 // TrimPkgFile is the proxy of TrimPkgFileFunc to call the funciton.
 func TrimPkgFile(file string) string {
 	return TrimPkgFileFunc.Get()(file)
@@ -86,11 +78,4 @@ func trimPkgFile(file string) string {
 		}
 	}
 	return file
-}
-
-func trimPkgFileValidation(f func(file string) string) error {
-	if f == nil {
-		return errors.New("TrimPkgFile function must not be nil")
-	}
-	return nil
 }
