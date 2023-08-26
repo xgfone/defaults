@@ -15,9 +15,38 @@
 package defaults
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"log"
+	"sync"
 )
+
+var logkv = stdlog
+
+var bufpool = &sync.Pool{New: func() any { return bytes.NewBuffer(make([]byte, 0, 512)) }}
+
+func stdlog(msg string, kvs ...interface{}) {
+	_len := len(kvs)
+	if _len == 0 {
+		log.Print(msg)
+		return
+	}
+
+	buf := bufpool.Get().(*bytes.Buffer)
+	buf.WriteString(msg)
+	buf.WriteString(", ")
+	for i := 0; i < _len; i += 2 {
+		if i == 0 {
+			fmt.Fprintf(buf, "%v=%v", kvs[i], kvs[i+1])
+		} else {
+			fmt.Fprintf(buf, ", %v=%v", kvs[i], kvs[i+1])
+		}
+	}
+	log.Print(buf.String())
+	buf.Reset()
+	bufpool.Put(buf)
+}
 
 var (
 	// HandlePanicFunc is used to handle the panic value returned by recover().
@@ -32,7 +61,7 @@ func HandlePanic(r interface{}) {
 }
 
 func handlePanic(r interface{}) {
-	log.Printf("wrap a panic: %+v", r)
+	logkv("wrap a panic", "panic", r, "stacks", GetStacks(2))
 }
 
 func handlePanicValidation(f func(interface{})) error {
