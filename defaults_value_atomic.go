@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package defaults provides some global default values.
+//go:build atomic
+
 package defaults
 
 import "sync/atomic"
