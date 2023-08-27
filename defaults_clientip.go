@@ -45,40 +45,29 @@ func GetClientIP(ctx context.Context, req interface{}) netip.Addr {
 	return GetClientIPFunc.Get()(ctx, req)
 }
 
-func getClientIP(ctx context.Context, req interface{}) netip.Addr {
+func getClientIP(ctx context.Context, req interface{}) (addr netip.Addr) {
 	switch v := req.(type) {
 	case interface{ ClientIP() netip.Addr }:
-		return v.ClientIP()
+		addr = v.ClientIP()
 
 	case interface{ ClientIP() net.IP }:
-		return ip2addr(v.ClientIP())
+		addr, _ = netip.AddrFromSlice(v.ClientIP())
 
 	case interface{ ClientIP() string }:
-		return str2addr(v.ClientIP())
+		addr, _ = netip.ParseAddr(assists.TrimIP(v.ClientIP()))
 
 	case interface{ RemoteAddr() netip.Addr }:
-		return v.RemoteAddr()
+		addr = v.RemoteAddr()
 
 	case interface{ RemoteAddr() net.Addr }:
-		return assists.ConvertAddr(v.RemoteAddr())
+		addr = assists.ConvertAddr(v.RemoteAddr())
 
 	case interface{ RemoteAddr() string }:
-		return str2addr(v.RemoteAddr())
+		addr, _ = netip.ParseAddr(assists.TrimIP(v.RemoteAddr()))
 
 	case *http.Request:
-		return str2addr(v.RemoteAddr)
-
-	default:
-		return netip.Addr{}
+		addr, _ = netip.ParseAddr(assists.TrimIP(v.RemoteAddr))
 	}
-}
 
-func ip2addr(ip net.IP) netip.Addr {
-	addr, _ := netip.AddrFromSlice(ip)
-	return addr
-}
-
-func str2addr(s string) netip.Addr {
-	addr, _ := netip.ParseAddr(assists.TrimIP(s))
-	return addr
+	return
 }
