@@ -18,6 +18,9 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"net/netip"
+
+	"github.com/xgfone/go-defaults/assists"
 )
 
 var (
@@ -26,58 +29,69 @@ var (
 	// For the default implementation, it only supports the types or interfaces:
 	//
 	// 	*http.Request
+	// 	interface{ ClientIP() netip.Addr }
 	// 	interface{ ClientIP() net.IP }
 	// 	interface{ ClientIP() string }
+	// 	interface{ RemoteAddr() netip.Addr }
 	// 	interface{ RemoteAddr() net.Addr }
 	// 	interface{ RemoteAddr() string }
 	//
 	// Or, return nil.
-	GetClientIPFunc = NewValueWithValidation(getClientIP, fActxAifaceR1[net.IP]("GetClientIP"))
+	GetClientIPFunc = NewValueWithValidation(getClientIP, fActxAifaceR1[netip.Addr]("GetClientIP"))
 )
 
 // GetClientIP is the proxy of GetClientIPFunc to call the function.
-func GetClientIP(ctx context.Context, req interface{}) net.IP {
+func GetClientIP(ctx context.Context, req interface{}) netip.Addr {
 	return GetClientIPFunc.Get()(ctx, req)
 }
 
-func getClientIP(ctx context.Context, req interface{}) net.IP {
+func getClientIP(ctx context.Context, req interface{}) netip.Addr {
 	switch v := req.(type) {
-	case interface{ ClientIP() net.IP }:
+	case interface{ ClientIP() netip.Addr }:
 		return v.ClientIP()
 
+	case interface{ ClientIP() net.IP }:
+		return ip2addr(v.ClientIP())
+
 	case interface{ ClientIP() string }:
-		return net.ParseIP(v.ClientIP())
+		return str2addr(v.ClientIP())
+
+	case interface{ RemoteAddr() netip.Addr }:
+		return v.RemoteAddr()
 
 	case interface{ RemoteAddr() net.Addr }:
-		return netaddr2netip(v.RemoteAddr())
+		return netaddr2netipaddr(v.RemoteAddr())
 
 	case interface{ RemoteAddr() string }:
-		return string2netip(v.RemoteAddr())
+		return str2addr(v.RemoteAddr())
 
 	case *http.Request:
-		return string2netip(v.RemoteAddr)
+		return str2addr(v.RemoteAddr)
 
 	default:
-		return nil
+		return netip.Addr{}
 	}
 }
 
-func netaddr2netip(addr net.Addr) net.IP {
+func ip2addr(ip net.IP) netip.Addr {
+	addr, _ := netip.AddrFromSlice(ip)
+	return addr
+}
+
+func netaddr2netipaddr(addr net.Addr) netip.Addr {
 	switch v := addr.(type) {
 	case *net.TCPAddr:
-		return v.IP
+		return ip2addr(v.IP)
 
 	case *net.UDPAddr:
-		return v.IP
+		return ip2addr(v.IP)
 
 	default:
-		return string2netip(v.String())
+		return str2addr(v.String())
 	}
 }
 
-func string2netip(s string) net.IP {
-	if host, _, _ := net.SplitHostPort(s); host != "" {
-		s = host
-	}
-	return net.ParseIP(s)
+func str2addr(s string) netip.Addr {
+	addr, _ := netip.ParseAddr(assists.TrimIP(s))
+	return addr
 }

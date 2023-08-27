@@ -17,12 +17,29 @@ package defaults
 import (
 	"context"
 	"net/http"
+	"net/netip"
 	"testing"
 )
 
+func BenchmarkGetClientIP(b *testing.B) {
+	var drop func(netip.Addr)
+
+	r := &http.Request{RemoteAddr: "127.0.0.1:80"}
+	drop = func(netip.Addr) {}
+
+	b.ResetTimer()
+	b.ReportAllocs()
+	b.RunParallel(func(p *testing.PB) {
+		for p.Next() {
+			ip := GetClientIP(context.Background(), r)
+			drop(ip)
+		}
+	})
+}
+
 func TestString2netip(t *testing.T) {
 	expect := "127.0.0.1"
-	result := string2netip("127.0.0.1:80").String()
+	result := str2addr("127.0.0.1:80").String()
 	if result != expect {
 		t.Errorf("expect '%s', but got '%s'", expect, result)
 	}
