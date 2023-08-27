@@ -14,7 +14,11 @@
 
 package assists
 
-import "strings"
+import (
+	"net"
+	"net/netip"
+	"strings"
+)
 
 // TrimIP trims the port from the string s if exists. Or, return s itself.
 //
@@ -36,4 +40,30 @@ func TrimIP(s string) string {
 		}
 	}
 	return s
+}
+
+// ConvertAddr converts the address from net.Addr to netip.Addr.
+//
+// If failed, return ZERO.
+func ConvertAddr(addr net.Addr) netip.Addr {
+	switch v := addr.(type) {
+	case *net.TCPAddr:
+		return ip2addr(v.IP)
+
+	case *net.UDPAddr:
+		return ip2addr(v.IP)
+
+	default:
+		return str2addr(v.String())
+	}
+}
+
+func ip2addr(ip net.IP) netip.Addr {
+	addr, _ := netip.AddrFromSlice(ip)
+	return addr
+}
+
+func str2addr(s string) netip.Addr {
+	addr, _ := netip.ParseAddr(TrimIP(s))
+	return addr
 }

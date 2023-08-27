@@ -60,7 +60,7 @@ func getClientIP(ctx context.Context, req interface{}) netip.Addr {
 		return v.RemoteAddr()
 
 	case interface{ RemoteAddr() net.Addr }:
-		return netaddr2netipaddr(v.RemoteAddr())
+		return assists.ConvertAddr(v.RemoteAddr())
 
 	case interface{ RemoteAddr() string }:
 		return str2addr(v.RemoteAddr())
@@ -76,19 +76,6 @@ func getClientIP(ctx context.Context, req interface{}) netip.Addr {
 func ip2addr(ip net.IP) netip.Addr {
 	addr, _ := netip.AddrFromSlice(ip)
 	return addr
-}
-
-func netaddr2netipaddr(addr net.Addr) netip.Addr {
-	switch v := addr.(type) {
-	case *net.TCPAddr:
-		return ip2addr(v.IP)
-
-	case *net.UDPAddr:
-		return ip2addr(v.IP)
-
-	default:
-		return str2addr(v.String())
-	}
 }
 
 func str2addr(s string) netip.Addr {
