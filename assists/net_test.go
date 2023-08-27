@@ -12,35 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package defaults
+package assists
 
-import (
-	"context"
-	"net/http"
-	"net/netip"
-	"testing"
-)
+import "testing"
 
-func BenchmarkGetClientIP(b *testing.B) {
-	var drop func(netip.Addr)
-
-	r := &http.Request{RemoteAddr: "127.0.0.1:80"}
-	drop = func(netip.Addr) {}
-
-	b.ResetTimer()
-	b.ReportAllocs()
-	b.RunParallel(func(p *testing.PB) {
-		for p.Next() {
-			ip := GetClientIP(context.Background(), r)
-			drop(ip)
-		}
-	})
-}
-
-func TestGetClientIP(t *testing.T) {
+func TestString2netip(t *testing.T) {
 	expect := "127.0.0.1"
-	ip := GetClientIP(context.Background(), &http.Request{RemoteAddr: "127.0.0.1:80"})
-	if result := ip.String(); result != expect {
+	result := str2addr("127.0.0.1:80").String()
+	if result != expect {
+		t.Errorf("expect '%s', but got '%s'", expect, result)
+	}
+
+	expect = "ff00::"
+	result = str2addr("[ff00::]:80").String()
+	if result != expect {
 		t.Errorf("expect '%s', but got '%s'", expect, result)
 	}
 }
