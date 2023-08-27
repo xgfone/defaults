@@ -16,10 +16,8 @@ package defaults
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net"
-	"net/netip"
+	"net/http"
 )
 
 var (
@@ -28,11 +26,11 @@ var (
 	// For the default implementation, it only detects req
 	// and supports the types or interfaces:
 	//
+	// 	*http.Request
 	//	interface{ RemoteAddr() string }
 	//	interface{ RemoteAddr() net.Addr }
 	//
-	// or, retry to get the http request by GetHTTPRequestFunc
-	// and return the field RemoteAddr.
+	// Or, return "".
 	GetRemoteAddrFunc = NewValueWithValidation(getRemoteAddr, fActxAifaceR1[string]("GetRemoteAddr"))
 )
 
@@ -49,10 +47,10 @@ func getRemoteAddr(ctx context.Context, req interface{}) string {
 	case interface{ RemoteAddr() net.Addr }:
 		return v.RemoteAddr().String()
 
+	case *http.Request:
+		return v.RemoteAddr
+
 	default:
-		if r := GetHTTPRequest(ctx, req); r != nil {
-			return r.RemoteAddr
-		}
-		panic(fmt.Errorf("GetRemoteAddr: unknown type %T", req))
+		return ""
 	}
 }
