@@ -23,8 +23,7 @@ import (
 var (
 	// GetClientIPFunc is used to get the client ip of the request.
 	//
-	// For the default implementation, it only detects req
-	// and supports the types or interfaces:
+	// For the default implementation, it only supports the types or interfaces:
 	//
 	// 	*http.Request
 	// 	interface{ ClientIP() net.IP }

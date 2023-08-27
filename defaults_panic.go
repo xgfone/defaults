@@ -16,8 +16,6 @@ package defaults
 
 var (
 	// HandlePanicFunc is used to handle the panic value returned by recover().
-	//
-	// Default: log.Printf("wrap a panic: %+v", recoverValue)
 	HandlePanicFunc = NewValueWithValidation(handlePanic, fA1Validation[interface{}]("HandlePanic"))
 )
 

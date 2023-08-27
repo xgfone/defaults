@@ -14,7 +14,9 @@
 
 package defaults
 
-import "context"
+import (
+	"context"
+)
 
 var (
 	// HeaderXRequestID is used by GetRequestIDFunc to try
@@ -23,8 +25,7 @@ var (
 
 	// GetRequestIDFunc is used to get the unique request session id.
 	//
-	// For the default implementation, it only detects req
-	// and supports the interfaces:
+	// For the default implementation, it only supports the interfaces:
 	//
 	//	interface{ RequestID() string }
 	//	interface{ GetRequestID() string }

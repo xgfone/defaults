@@ -23,8 +23,7 @@ import (
 var (
 	// GetRemoteAddrFunc is used to get the remote address.
 	//
-	// For the default implementation, it only detects req
-	// and supports the types or interfaces:
+	// For the default implementation, it only supports the types or interfaces:
 	//
 	// 	*http.Request
 	//	interface{ RemoteAddr() string }
