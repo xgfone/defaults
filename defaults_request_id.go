@@ -16,6 +16,7 @@ package defaults
 
 import (
 	"context"
+	"net/http"
 )
 
 var (
@@ -25,13 +26,13 @@ var (
 
 	// GetRequestIDFunc is used to get the unique request session id.
 	//
-	// For the default implementation, it only supports the interfaces:
+	// For the default implementation, it only supports the types and interfaces:
 	//
+	// 	*http.Request
 	//	interface{ RequestID() string }
 	//	interface{ GetRequestID() string }
 	//
-	// Or, retry to get http.Request by GetHTTPRequest and return the header HeaderXRequestID.
-	// Return "" instead if not found.
+	// Or, return "".
 	GetRequestIDFunc = NewValueWithValidation(getRequestID, fActxAifaceR1[string]("GetRequestID"))
 )
 
@@ -48,10 +49,10 @@ func getRequestID(ctx context.Context, req interface{}) string {
 	case interface{ GetRequestID() string }:
 		return r.GetRequestID()
 
+	case *http.Request:
+		return r.Header.Get(HeaderXRequestID)
+
 	default:
-		if r := GetHTTPRequest(ctx, req); r != nil {
-			return r.Header.Get(HeaderXRequestID)
-		}
 		return ""
 	}
 }
