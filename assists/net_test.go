@@ -16,15 +16,15 @@ package assists
 
 import "testing"
 
-func TestString2netip(t *testing.T) {
+func TestTrimIP(t *testing.T) {
 	expect := "127.0.0.1"
-	result := str2addr("127.0.0.1:80").String()
+	result := TrimIP("127.0.0.1:80")
 	if result != expect {
 		t.Errorf("expect '%s', but got '%s'", expect, result)
 	}
 
 	expect = "ff00::"
-	result = str2addr("[ff00::]:80").String()
+	result = TrimIP("[ff00::]:80")
 	if result != expect {
 		t.Errorf("expect '%s', but got '%s'", expect, result)
 	}

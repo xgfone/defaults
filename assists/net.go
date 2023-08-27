@@ -45,25 +45,16 @@ func TrimIP(s string) string {
 // ConvertAddr converts the address from net.Addr to netip.Addr.
 //
 // If failed, return ZERO.
-func ConvertAddr(addr net.Addr) netip.Addr {
-	switch v := addr.(type) {
+func ConvertAddr(netaddr net.Addr) (addr netip.Addr) {
+	switch v := netaddr.(type) {
 	case *net.TCPAddr:
-		return ip2addr(v.IP)
+		addr, _ = netip.AddrFromSlice(v.IP)
 
 	case *net.UDPAddr:
-		return ip2addr(v.IP)
+		addr, _ = netip.AddrFromSlice(v.IP)
 
 	default:
-		return str2addr(v.String())
+		addr, _ = netip.ParseAddr(TrimIP(v.String()))
 	}
-}
-
-func ip2addr(ip net.IP) netip.Addr {
-	addr, _ := netip.AddrFromSlice(ip)
-	return addr
-}
-
-func str2addr(s string) netip.Addr {
-	addr, _ := netip.ParseAddr(TrimIP(s))
-	return addr
+	return
 }
