@@ -14,7 +14,10 @@
 
 package assists
 
-import "testing"
+import (
+	"net"
+	"testing"
+)
 
 func TestTrimIP(t *testing.T) {
 	expect := "127.0.0.1"
@@ -27,5 +30,23 @@ func TestTrimIP(t *testing.T) {
 	result = TrimIP("[ff00::]:80")
 	if result != expect {
 		t.Errorf("expect '%s', but got '%s'", expect, result)
+	}
+}
+
+func TestIP2Addr(t *testing.T) {
+	if IP2Addr(nil).IsValid() {
+		t.Error("expect invalid, but got valid")
+	}
+
+	if !IP2Addr(net.ParseIP("1.2.3.4")).Is4() {
+		t.Error("expect an ipv4, but got not")
+	}
+
+	if !IP2Addr(net.ParseIP("ff00::")).Is6() {
+		t.Error("expect an ipv4, but got not")
+	}
+
+	if !IP2Addr(net.ParseIP("::ffff:1.2.3.4")).Is4() {
+		t.Error("expect an ipv4, but got not")
 	}
 }

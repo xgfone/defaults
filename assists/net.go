@@ -48,13 +48,33 @@ func TrimIP(s string) string {
 func ConvertAddr(netaddr net.Addr) (addr netip.Addr) {
 	switch v := netaddr.(type) {
 	case *net.TCPAddr:
-		addr, _ = netip.AddrFromSlice(v.IP)
+		addr = IP2Addr(v.IP)
 
 	case *net.UDPAddr:
-		addr, _ = netip.AddrFromSlice(v.IP)
+		addr = IP2Addr(v.IP)
 
 	default:
 		addr, _ = netip.ParseAddr(TrimIP(v.String()))
+	}
+	return
+}
+
+// IP2Addr converts net.IP to netip.Addr, which also converts 4in6 to ipv4.
+//
+// If ip is invalid, the returned addr is also invalid.
+func IP2Addr(ip net.IP) (addr netip.Addr) {
+	switch len(ip) {
+	case net.IPv4len:
+		addr = netip.AddrFrom4(*(*[4]byte)(ip))
+		// addr = netip.AddrFrom4([4]byte(ip)) // 1.20+
+	case net.IPv6len:
+		if ipv4 := ip.To4(); ipv4 != nil {
+			addr = netip.AddrFrom4(*(*[4]byte)(ipv4))
+			// addr = netip.AddrFrom4([4]byte(ipv4)) // 1.20+
+		} else {
+			addr = netip.AddrFrom16(*(*[16]byte)(ip))
+			// addr = netip.AddrFrom16([16]byte(ip)) // 1.20+
+		}
 	}
 	return
 }
