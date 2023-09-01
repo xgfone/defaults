@@ -14,16 +14,36 @@
 
 package defaults
 
+import "context"
+
 var (
+	// HandlePanicContextFunc is used to handle the panic value returned by recover().
+	HandlePanicContextFunc = NewValueWithValidation(handlePanicContext, fActxAiface("HandlePanicContext"))
+
 	// HandlePanicFunc is used to handle the panic value returned by recover().
+	//
+	// Default: use HandlePanicContextFunc(context.Background(), r)
+	//
+	// DEPRECATED.
 	HandlePanicFunc = NewValueWithValidation(handlePanic, fA1Validation[interface{}]("HandlePanic"))
 )
 
 // HandlePanic is the proxy of HandlePanicFunc to call the funciton.
+//
+// DEPRECATED.
 func HandlePanic(r interface{}) {
 	HandlePanicFunc.Get()(r)
 }
 
+// HandlePanicContext is the proxy of HandlePanicContextFunc to call the funciton.
+func HandlePanicContext(c context.Context, r interface{}) {
+	HandlePanicContextFunc.Get()(c, r)
+}
+
 func handlePanic(r interface{}) {
+	HandlePanicContextFunc.Get()(context.Background(), r)
+}
+
+func handlePanicContext(c context.Context, r interface{}) {
 	logkv("wrap a panic", "panic", r, "stacks", GetStacks(2))
 }

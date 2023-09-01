@@ -47,6 +47,15 @@ func fA1R2Validation[A1, R1, R2 any](name string) func(func(A1) (R1, R2)) error 
 	}
 }
 
+func fA2Validation[A1, A2 any](name string) func(func(A1, A2)) error {
+	return func(f func(A1, A2)) error {
+		if f == nil {
+			return fmt.Errorf("%s function must not be nil", name)
+		}
+		return nil
+	}
+}
+
 func fA2R1Validation[A1, A2, R1 any](name string) func(func(A1, A2) R1) error {
 	return func(f func(A1, A2) R1) error {
 		if f == nil {
@@ -73,4 +82,8 @@ func fActxAifaceR1[R1 any](name string) func(func(context.Context, interface{}) 
 
 func fhttprespR[R any](name string) func(func(context.Context, http.ResponseWriter, *http.Request) R) error {
 	return fA3R1Validation[context.Context, http.ResponseWriter, *http.Request, R](name)
+}
+
+func fActxAiface(name string) func(func(context.Context, interface{})) error {
+	return fA2Validation[context.Context, interface{}](name)
 }
