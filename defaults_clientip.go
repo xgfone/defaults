@@ -41,11 +41,11 @@ var (
 )
 
 // GetClientIP is the proxy of GetClientIPFunc to call the function.
-func GetClientIP(ctx context.Context, req interface{}) netip.Addr {
+func GetClientIP(ctx context.Context, req any) netip.Addr {
 	return GetClientIPFunc.Get()(ctx, req)
 }
 
-func getClientIP(ctx context.Context, req interface{}) (addr netip.Addr) {
+func getClientIP(ctx context.Context, req any) (addr netip.Addr) {
 	switch v := req.(type) {
 	case interface{ ClientIP() netip.Addr }:
 		addr = v.ClientIP()

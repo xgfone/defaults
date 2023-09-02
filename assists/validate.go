@@ -16,30 +16,30 @@ package assists
 
 // StructValidator is used to validate whether a struct value is valid.
 type StructValidator interface {
-	Validate(structvalue interface{}) error
+	Validate(structvalue any) error
 }
 
 var _ StructValidator = StructValidateFunc(nil)
 
 // StructValidateFunc is a struct validation function.
-type StructValidateFunc func(structvalue interface{}) error
+type StructValidateFunc func(structvalue any) error
 
 // Validate implements the interface Validator.
-func (f StructValidateFunc) Validate(structvalue interface{}) error {
+func (f StructValidateFunc) Validate(structvalue any) error {
 	return f(structvalue)
 }
 
 // RuleValidator is used to validate whether a value conforms with the rule.
 type RuleValidator interface {
-	Validate(value interface{}, rule string) error
+	Validate(value any, rule string) error
 }
 
 var _ RuleValidator = RuleValidateFunc(nil)
 
 // RuleValidateFunc is a rule validation function.
-type RuleValidateFunc func(value interface{}, rule string) error
+type RuleValidateFunc func(value any, rule string) error
 
 // Validate implements the interface RuleValidator.
-func (f RuleValidateFunc) Validate(value interface{}, rule string) error {
+func (f RuleValidateFunc) Validate(value any, rule string) error {
 	return f(value, rule)
 }

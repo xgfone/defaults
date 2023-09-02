@@ -25,25 +25,25 @@ var (
 	// Default: use HandlePanicContextFunc(context.Background(), r)
 	//
 	// DEPRECATED.
-	HandlePanicFunc = NewValueWithValidation(handlePanic, fA1Validation[interface{}]("HandlePanic"))
+	HandlePanicFunc = NewValueWithValidation(handlePanic, fA1Validation[any]("HandlePanic"))
 )
 
 // HandlePanic is the proxy of HandlePanicFunc to call the funciton.
 //
 // DEPRECATED.
-func HandlePanic(r interface{}) {
+func HandlePanic(r any) {
 	HandlePanicFunc.Get()(r)
 }
 
 // HandlePanicContext is the proxy of HandlePanicContextFunc to call the funciton.
-func HandlePanicContext(c context.Context, r interface{}) {
+func HandlePanicContext(c context.Context, r any) {
 	HandlePanicContextFunc.Get()(c, r)
 }
 
-func handlePanic(r interface{}) {
+func handlePanic(r any) {
 	HandlePanicContextFunc.Get()(context.Background(), r)
 }
 
-func handlePanicContext(c context.Context, r interface{}) {
+func handlePanicContext(c context.Context, r any) {
 	logkv("wrap a panic", "panic", r, "stacks", GetStacks(2))
 }

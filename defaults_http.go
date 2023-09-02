@@ -61,7 +61,7 @@ func GetHTTPStatusCode(ctx context.Context, w http.ResponseWriter, r *http.Reque
 }
 
 // GetHTTPRequest is the proxy of GetHTTPRequestFunc to call the function.
-func GetHTTPRequest(ctx context.Context, req interface{}) *http.Request {
+func GetHTTPRequest(ctx context.Context, req any) *http.Request {
 	return GetHTTPRequestFunc.Get()(ctx, req)
 }
 
@@ -91,7 +91,7 @@ func getHTTPStatusCode(ctx context.Context, w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func getHTTPRequest(ctx context.Context, req interface{}) *http.Request {
+func getHTTPRequest(ctx context.Context, req any) *http.Request {
 	switch r := req.(type) {
 	case *http.Request:
 		return r

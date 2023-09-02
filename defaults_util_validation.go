@@ -76,14 +76,14 @@ func fA3R1Validation[A1, A2, A3, R1 any](name string) func(func(A1, A2, A3) R1) 
 
 // ------------------------------------------------------------------------ //
 
-func fActxAifaceR1[R1 any](name string) func(func(context.Context, interface{}) R1) error {
-	return fA2R1Validation[context.Context, interface{}, R1](name)
+func fActxAifaceR1[R1 any](name string) func(func(context.Context, any) R1) error {
+	return fA2R1Validation[context.Context, any, R1](name)
 }
 
 func fhttprespR[R any](name string) func(func(context.Context, http.ResponseWriter, *http.Request) R) error {
 	return fA3R1Validation[context.Context, http.ResponseWriter, *http.Request, R](name)
 }
 
-func fActxAiface(name string) func(func(context.Context, interface{})) error {
-	return fA2Validation[context.Context, interface{}](name)
+func fActxAiface(name string) func(func(context.Context, any)) error {
+	return fA2Validation[context.Context, any](name)
 }

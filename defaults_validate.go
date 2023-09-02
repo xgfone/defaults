@@ -28,7 +28,7 @@ var (
 
 // ValidateStruct uses Validator to validate the struct value
 // if StructValidator is not nil.
-func ValidateStruct(value interface{}) (err error) {
+func ValidateStruct(value any) (err error) {
 	if v := StructValidator.Get(); v != nil {
 		err = v.Validate(value)
 	}
@@ -37,7 +37,7 @@ func ValidateStruct(value interface{}) (err error) {
 
 // ValidateWithRule uses RuleValidator to validate a value conforms
 // with the rule if RuleValidator is not nil.
-func ValidateWithRule(value interface{}, rule string) (err error) {
+func ValidateWithRule(value any, rule string) (err error) {
 	if v := RuleValidator.Get(); v != nil {
 		err = v.Validate(value, rule)
 	}

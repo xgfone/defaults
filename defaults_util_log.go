@@ -25,7 +25,7 @@ var logkv = stdlog
 
 var bufpool = &sync.Pool{New: func() any { return bytes.NewBuffer(make([]byte, 0, 1024)) }}
 
-func stdlog(msg string, kvs ...interface{}) {
+func stdlog(msg string, kvs ...any) {
 	_len := len(kvs)
 	if _len == 0 {
 		log.Print(msg)

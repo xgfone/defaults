@@ -37,11 +37,11 @@ var (
 )
 
 // GetRequestID is the proxy of GetRequestIDFunc to call the function.
-func GetRequestID(ctx context.Context, req interface{}) string {
+func GetRequestID(ctx context.Context, req any) string {
 	return GetRequestIDFunc.Get()(ctx, req)
 }
 
-func getRequestID(ctx context.Context, req interface{}) string {
+func getRequestID(ctx context.Context, req any) string {
 	switch r := req.(type) {
 	case interface{ RequestID() string }:
 		return r.RequestID()
