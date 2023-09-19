@@ -20,26 +20,46 @@ import (
 	"strings"
 )
 
-// TrimIP trims the port from the string s if exists. Or, return s itself.
+// TrimPort trims the port from the host if exists. Or, returns itself.
 //
-// NOTICE: s must be a valid format "IP: or "IP:PORT".
-func TrimIP(s string) string {
-	for i, _len := 0, len(s); i < _len; i++ {
-		switch s[i] {
-		case '.': // IPv4, such as "1.2.3.4" or "1.2.3.4:80"
-			if index := strings.LastIndexByte(s, ':'); index > 0 {
-				s = s[:index]
-			}
-			return s
-
-		case ':', '[': // IPv6, such as "ff00::" or "[ff00::]:80"
-			if index := strings.LastIndexByte(s, ']'); index > 0 {
-				s = s[1:index]
-			}
-			return s
-		}
+// host may be one of formats as follow:
+//
+//	"ipv4"
+//	"ipv6"
+//	"domain"
+//	"ipv4:port"
+//	"[ipv6]:port"
+//	"domain:port"
+//
+// Any that is not an ipv4 or ipv6 is as a domain.
+//
+// NOTICE: it does not validate whether the host is valid.
+func TrimPort(host string) string {
+	if host == "" {
+		return ""
 	}
-	return s
+
+	// For "[IPv6]:Port"
+	if host[0] == '[' {
+		if index := strings.LastIndexByte(host, ']'); index > 0 {
+			host = host[1:index]
+		}
+		return host
+	}
+
+	// For "IPv4" or "Domain"
+	lastindex := strings.LastIndexByte(host, ':')
+	if lastindex == -1 {
+		return host
+	}
+
+	// For "IPv4:Port", or "Domain:Port"
+	if strings.IndexByte(host, ':') == lastindex {
+		return host[:lastindex]
+	}
+
+	// Default For "IPv6"
+	return host
 }
 
 // ConvertAddr converts the address from net.Addr to netip.Addr.
@@ -54,7 +74,7 @@ func ConvertAddr(netaddr net.Addr) (addr netip.Addr) {
 		addr = IP2Addr(v.IP)
 
 	default:
-		addr, _ = netip.ParseAddr(TrimIP(v.String()))
+		addr, _ = netip.ParseAddr(TrimPort(v.String()))
 	}
 	return
 }

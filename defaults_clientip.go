@@ -54,7 +54,7 @@ func getClientIP(ctx context.Context, req any) (addr netip.Addr) {
 		addr, _ = netip.AddrFromSlice(v.ClientIP())
 
 	case interface{ ClientIP() string }:
-		addr, _ = netip.ParseAddr(assists.TrimIP(v.ClientIP()))
+		addr, _ = netip.ParseAddr(assists.TrimPort(v.ClientIP()))
 
 	case interface{ RemoteAddr() netip.Addr }:
 		addr = v.RemoteAddr()
@@ -63,10 +63,10 @@ func getClientIP(ctx context.Context, req any) (addr netip.Addr) {
 		addr = assists.ConvertAddr(v.RemoteAddr())
 
 	case interface{ RemoteAddr() string }:
-		addr, _ = netip.ParseAddr(assists.TrimIP(v.RemoteAddr()))
+		addr, _ = netip.ParseAddr(assists.TrimPort(v.RemoteAddr()))
 
 	case *http.Request:
-		addr, _ = netip.ParseAddr(assists.TrimIP(v.RemoteAddr))
+		addr, _ = netip.ParseAddr(assists.TrimPort(v.RemoteAddr))
 	}
 
 	return

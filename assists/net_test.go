@@ -15,22 +15,34 @@
 package assists
 
 import (
+	"fmt"
 	"net"
 	"testing"
 )
 
-func TestTrimIP(t *testing.T) {
-	expect := "127.0.0.1"
-	result := TrimIP("127.0.0.1:80")
-	if result != expect {
-		t.Errorf("expect '%s', but got '%s'", expect, result)
-	}
+func ExampleTrimPort() {
+	fmt.Println(TrimPort(""))
+	fmt.Println(TrimPort("[abc"))
+	fmt.Println(TrimPort("[abc]"))
+	fmt.Println(TrimPort("[abc]:80")) // We just trim it by the lexical rule, not check its validity.
+	fmt.Println(TrimPort("[ff00::]:80"))
+	fmt.Println(TrimPort("ff00::"))
+	fmt.Println(TrimPort("1.2.3.4"))
+	fmt.Println(TrimPort("1.2.3.4:80"))
+	fmt.Println(TrimPort("localhost"))
+	fmt.Println(TrimPort("localhost:80"))
 
-	expect = "ff00::"
-	result = TrimIP("[ff00::]:80")
-	if result != expect {
-		t.Errorf("expect '%s', but got '%s'", expect, result)
-	}
+	// Output:
+	//
+	// [abc
+	// abc
+	// abc
+	// ff00::
+	// ff00::
+	// 1.2.3.4
+	// 1.2.3.4
+	// localhost
+	// localhost
 }
 
 func TestIP2Addr(t *testing.T) {
