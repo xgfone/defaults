@@ -50,6 +50,10 @@ func handlePanicContext(c context.Context, r any) {
 
 // Recover is a convenient function to wrap and recover the panic if occurring,
 // then call HandlePanicContext to handle it.
+//
+// NOTICE: It must be called after defer, like
+//
+//	defer Recover(context.Background())
 func Recover(ctx context.Context) {
 	if ctx == nil {
 		ctx = context.Background()
