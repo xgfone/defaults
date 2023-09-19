@@ -47,3 +47,15 @@ func handlePanic(r any) {
 func handlePanicContext(c context.Context, r any) {
 	logkv("wrap a panic", "panic", r, "stacks", GetStacks(2))
 }
+
+// Recover is a convenient function to wrap and recover the panic if occurring,
+// then call HandlePanicContext to handle it.
+func Recover(ctx context.Context) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	if r := recover(); r != nil {
+		HandlePanicContext(ctx, r)
+	}
+}
