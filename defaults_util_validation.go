@@ -17,7 +17,6 @@ package defaults
 import (
 	"context"
 	"fmt"
-	"net/http"
 )
 
 //nolint:unused
@@ -70,26 +69,11 @@ func fA2R1Validation[A1, A2, R1 any](name string) func(func(A1, A2) R1) error {
 	}
 }
 
-//nolint:unused
-func fA3R1Validation[A1, A2, A3, R1 any](name string) func(func(A1, A2, A3) R1) error {
-	return func(f func(A1, A2, A3) R1) error {
-		if f == nil {
-			return fmt.Errorf("%s function must not be nil", name)
-		}
-		return nil
-	}
-}
-
 // ------------------------------------------------------------------------ //
 
 //nolint:unused
 func fActxAifaceR1[R1 any](name string) func(func(context.Context, any) R1) error {
 	return fA2R1Validation[context.Context, any, R1](name)
-}
-
-//nolint:unused
-func fhttprespR[R any](name string) func(func(context.Context, http.ResponseWriter, *http.Request) R) error {
-	return fA3R1Validation[context.Context, http.ResponseWriter, *http.Request, R](name)
 }
 
 //nolint:unused
