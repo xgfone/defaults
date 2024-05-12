@@ -20,6 +20,7 @@ import (
 	"net/http"
 )
 
+//nolint:unused
 func fA1Validation[A1 any](name string) func(func(A1)) error {
 	return func(f func(A1)) error {
 		if f == nil {
@@ -29,6 +30,7 @@ func fA1Validation[A1 any](name string) func(func(A1)) error {
 	}
 }
 
+//nolint:unused
 func fA1R1Validation[A1, R1 any](name string) func(func(A1) R1) error {
 	return func(f func(A1) R1) error {
 		if f == nil {
@@ -38,6 +40,7 @@ func fA1R1Validation[A1, R1 any](name string) func(func(A1) R1) error {
 	}
 }
 
+//nolint:unused
 func fA1R2Validation[A1, R1, R2 any](name string) func(func(A1) (R1, R2)) error {
 	return func(f func(A1) (R1, R2)) error {
 		if f == nil {
@@ -47,6 +50,7 @@ func fA1R2Validation[A1, R1, R2 any](name string) func(func(A1) (R1, R2)) error 
 	}
 }
 
+//nolint:unused
 func fA2Validation[A1, A2 any](name string) func(func(A1, A2)) error {
 	return func(f func(A1, A2)) error {
 		if f == nil {
@@ -56,6 +60,7 @@ func fA2Validation[A1, A2 any](name string) func(func(A1, A2)) error {
 	}
 }
 
+//nolint:unused
 func fA2R1Validation[A1, A2, R1 any](name string) func(func(A1, A2) R1) error {
 	return func(f func(A1, A2) R1) error {
 		if f == nil {
@@ -65,6 +70,7 @@ func fA2R1Validation[A1, A2, R1 any](name string) func(func(A1, A2) R1) error {
 	}
 }
 
+//nolint:unused
 func fA3R1Validation[A1, A2, A3, R1 any](name string) func(func(A1, A2, A3) R1) error {
 	return func(f func(A1, A2, A3) R1) error {
 		if f == nil {
@@ -76,14 +82,17 @@ func fA3R1Validation[A1, A2, A3, R1 any](name string) func(func(A1, A2, A3) R1) 
 
 // ------------------------------------------------------------------------ //
 
+//nolint:unused
 func fActxAifaceR1[R1 any](name string) func(func(context.Context, any) R1) error {
 	return fA2R1Validation[context.Context, any, R1](name)
 }
 
+//nolint:unused
 func fhttprespR[R any](name string) func(func(context.Context, http.ResponseWriter, *http.Request) R) error {
 	return fA3R1Validation[context.Context, http.ResponseWriter, *http.Request, R](name)
 }
 
+//nolint:unused
 func fActxAiface(name string) func(func(context.Context, any)) error {
 	return fA2Validation[context.Context, any](name)
 }

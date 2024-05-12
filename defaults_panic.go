@@ -14,7 +14,10 @@
 
 package defaults
 
-import "context"
+import (
+	"context"
+	"log/slog"
+)
 
 var (
 	// HandlePanicFunc is used to handle the panic value returned by recover().
@@ -27,7 +30,7 @@ func HandlePanic(ctx context.Context, r any) {
 }
 
 func handlePanic(ctx context.Context, r any) {
-	logkv("wrap a panic", "panic", r, "stacks", GetStacks(2))
+	slog.Error("wrap a panic", "panic", r, "stacks", GetStacks(2))
 }
 
 // Recover is a convenient function to wrap and recover the panic if occurring,
