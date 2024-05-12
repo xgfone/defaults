@@ -47,17 +47,7 @@ func getStacks(skip int) []string {
 		if !more {
 			break
 		}
-
-		frame.File = TrimPkgFile(frame.File)
-		if frame.Function == "" {
-			stacks = append(stacks, fmt.Sprintf("%s:%d", frame.File, frame.Line))
-		} else {
-			name := frame.Function
-			if index := strings.LastIndexByte(frame.Function, '.'); index > -1 {
-				name = frame.Function[index+1:]
-			}
-			stacks = append(stacks, fmt.Sprintf("%s:%s:%d", frame.File, name, frame.Line))
-		}
+		stacks = append(stacks, fmtframe(frame))
 	}
 
 	return stacks
@@ -78,4 +68,30 @@ func trimPkgFile(file string) string {
 		}
 	}
 	return file
+}
+
+func caller(skip int) (caller string) {
+	pcs := make([]uintptr, 1)
+	if n := runtime.Callers(skip+3, pcs); n > 0 {
+		frame, _ := runtime.CallersFrames(pcs).Next()
+		if frame.PC != 0 {
+			return fmtframe(frame)
+		}
+	}
+
+	return "???"
+}
+
+func fmtframe(frame runtime.Frame) string {
+	frame.File = TrimPkgFile(frame.File)
+	if frame.Function == "" {
+		return fmt.Sprintf("%s:%d", frame.File, frame.Line)
+	}
+
+	name := frame.Function
+	if index := strings.LastIndexByte(frame.Function, '.'); index > -1 {
+		name = frame.Function[index+1:]
+	}
+
+	return fmt.Sprintf("%s:%s:%d", frame.File, name, frame.Line)
 }

@@ -1,4 +1,4 @@
-// Copyright 2023 xgfone
+// Copyright 2023~2024 xgfone
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +14,27 @@
 
 package defaults
 
-import "os"
+import (
+	"log/slog"
+	"os"
+)
 
 var (
 	// ExitFunc is used to exit the program.
 	//
 	// Default: os.Exit
 	ExitFunc = NewValueWithValidation(os.Exit, fA1Validation[int]("Exit"))
+
+	// OnExitFunc is used to register the exit function.
+	OnExitFunc = NewValueWithValidation(onexit, fA1Validation[func()]("OnExit"))
 )
 
 // Exit is the proxy of ExitFunc to call the function to exit the program.
 func Exit(code int) { ExitFunc.Get()(code) }
+
+// OnExit is the proxy of OnExitFunc to register the exit function f.
+func OnExit(f func()) { OnExitFunc.Get()(f) }
+
+func onexit(f func()) {
+	slog.Warn("system does not set the exit function register", "caller", caller(1))
+}
