@@ -17,49 +17,30 @@ package defaults
 import "context"
 
 var (
-	// HandlePanicContextFunc is used to handle the panic value returned by recover().
-	HandlePanicContextFunc = NewValueWithValidation(handlePanicContext, fActxAiface("HandlePanicContext"))
-
 	// HandlePanicFunc is used to handle the panic value returned by recover().
-	//
-	// Default: use HandlePanicContextFunc(context.Background(), r)
-	//
-	// DEPRECATED.
-	HandlePanicFunc = NewValueWithValidation(handlePanic, fA1Validation[any]("HandlePanic"))
+	HandlePanicFunc = NewValueWithValidation(handlePanic, fActxAiface("HandlePanic"))
 )
 
 // HandlePanic is the proxy of HandlePanicFunc to call the funciton.
-//
-// DEPRECATED.
-func HandlePanic(r any) {
-	HandlePanicFunc.Get()(r)
+func HandlePanic(ctx context.Context, r any) {
+	HandlePanicFunc.Get()(ctx, r)
 }
 
-// HandlePanicContext is the proxy of HandlePanicContextFunc to call the funciton.
-func HandlePanicContext(c context.Context, r any) {
-	HandlePanicContextFunc.Get()(c, r)
-}
-
-func handlePanic(r any) {
-	HandlePanicContextFunc.Get()(context.Background(), r)
-}
-
-func handlePanicContext(c context.Context, r any) {
+func handlePanic(ctx context.Context, r any) {
 	logkv("wrap a panic", "panic", r, "stacks", GetStacks(2))
 }
 
 // Recover is a convenient function to wrap and recover the panic if occurring,
-// then call HandlePanicContext to handle it.
+// then call HandlePanic to handle it.
 //
 // NOTICE: It must be called after defer, like
 //
 //	defer Recover(context.Background())
 func Recover(ctx context.Context) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
 	if r := recover(); r != nil {
-		HandlePanicContext(ctx, r)
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		HandlePanic(ctx, r)
 	}
 }
