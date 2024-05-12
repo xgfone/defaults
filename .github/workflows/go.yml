@@ -15,4 +15,9 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.go }}
-    - run: go test -cover -race ./...
+    - run: |
+        # just for file path from stacks.
+        mkdir -p /home/runner/go/src/github.com/xgfone/go-defaults
+        cp -r ./* /home/runner/go/src/github.com/xgfone/go-defaults
+        cd /home/runner/go/src/github.com/xgfone/go-defaults
+        go test -cover -race ./...
