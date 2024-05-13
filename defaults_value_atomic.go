@@ -56,6 +56,7 @@ func (v *Value[T]) Set(new T) {
 		panic(err)
 	}
 	v.value.Store(valuer[T]{Value: new})
+	logset()
 }
 
 // Swap sets the value to new thread-safely and returns the old value.
@@ -68,6 +69,7 @@ func (v *Value[T]) Swap(new T) (old T) {
 	if value := v.value.Swap(valuer[T]{Value: new}); value != nil {
 		old = value.(valuer[T]).Value
 	}
+	logswap()
 	return
 }
 

@@ -45,6 +45,7 @@ func (v *Value[T]) Set(new T) {
 		panic(err)
 	}
 	v.value = new
+	logset()
 }
 
 // Swap sets the value to new and returns the old value.
@@ -56,6 +57,7 @@ func (v *Value[T]) Swap(new T) (old T) {
 	}
 	old = v.value
 	v.value = new
+	logswap()
 	return
 }
 

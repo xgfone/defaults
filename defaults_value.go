@@ -14,14 +14,30 @@
 
 package defaults
 
-var (
-	// OnInitFunc is used to register the init function.
-	OnInitFunc = NewValueWithValidation(oninit, fA1Validation[func()]("OnInit"))
+import (
+	"log/slog"
+	"os"
+	"strconv"
 )
 
-// OnInit is the proxy of OnInitFunc to register the init function f.
-func OnInit(f func()) { OnInitFunc.Get()(f) }
+var isdebug bool
 
-func oninit(f func()) {
-	logwarn("system does not set the init function register", "caller", caller(2))
+func init() {
+	isdebug, _ = strconv.ParseBool(os.Getenv("DEBUG"))
+}
+
+func logwarn(msg string, kvs ...any) {
+	slog.Warn(msg, kvs...)
+}
+
+func logset() {
+	if isdebug {
+		slog.Info("set the default", "caller", caller(2))
+	}
+}
+
+func logswap() {
+	if isdebug {
+		slog.Info("swap the default", "caller", caller(2))
+	}
 }

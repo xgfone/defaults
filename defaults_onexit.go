@@ -14,10 +14,7 @@
 
 package defaults
 
-import (
-	"log/slog"
-	"os"
-)
+import "os"
 
 var (
 	// ExitFunc is used to exit the program.
@@ -36,5 +33,5 @@ func Exit(code int) { ExitFunc.Get()(code) }
 func OnExit(f func()) { OnExitFunc.Get()(f) }
 
 func onexit(f func()) {
-	slog.Warn("system does not set the exit function register", "caller", caller(1))
+	logwarn("system does not set the exit function register", "caller", caller(2))
 }

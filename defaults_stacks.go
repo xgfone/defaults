@@ -72,7 +72,7 @@ func trimPkgFile(file string) string {
 
 func caller(skip int) (caller string) {
 	pcs := make([]uintptr, 1)
-	if n := runtime.Callers(skip+3, pcs); n > 0 {
+	if n := runtime.Callers(skip+2, pcs); n > 0 {
 		frame, _ := runtime.CallersFrames(pcs).Next()
 		if frame.PC != 0 {
 			return fmtframe(frame)
