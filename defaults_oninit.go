@@ -20,6 +20,8 @@ var (
 )
 
 // OnInit is the proxy of OnInitFunc to register the init function f.
+//
+// NOTICE: OnInitFunc must be set before calling this function.
 func OnInit(f func()) { OnInitFunc.Get()(f) }
 
 func oninit(f func()) {

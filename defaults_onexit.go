@@ -30,6 +30,8 @@ var (
 func Exit(code int) { ExitFunc.Get()(code) }
 
 // OnExit is the proxy of OnExitFunc to register the exit function f.
+//
+// NOTICE: OnExitFunc must be set before calling this function.
 func OnExit(f func()) { OnExitFunc.Get()(f) }
 
 func onexit(f func()) {
