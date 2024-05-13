@@ -405,8 +405,6 @@ func toduration(src any) (dst time.Duration, err error) {
 		dst = *src
 	case interface{ Duration() time.Duration }:
 		dst = src.Duration()
-	case fmt.Stringer:
-		dst, err = parseDuration(src.String())
 	default:
 		err = fmt.Errorf("unsupport to convert %#T to time.Duration", src)
 	}
