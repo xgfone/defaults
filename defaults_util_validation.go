@@ -20,6 +20,26 @@ import (
 )
 
 //nolint:unused
+func fValidation(name string) func(func()) error {
+	return func(f func()) error {
+		if f == nil {
+			return fmt.Errorf("%s function must not be nil", name)
+		}
+		return nil
+	}
+}
+
+//nolint:unused
+func fR1Validation[R1 any](name string) func(func() R1) error {
+	return func(f func() R1) error {
+		if f == nil {
+			return fmt.Errorf("%s function must not be nil", name)
+		}
+		return nil
+	}
+}
+
+//nolint:unused
 func fA1Validation[A1 any](name string) func(func(A1)) error {
 	return func(f func(A1)) error {
 		if f == nil {
