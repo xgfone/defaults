@@ -59,5 +59,5 @@ func exitwait() { <-ExitContext().Done() }
 func OnExit(f func()) { OnExitFunc.Get()(f) }
 
 func onexit(f func()) {
-	logwarn("system does not set the exit function register", "caller", caller(2))
+	logwarn("system does not set the exit function register", "caller", GetCaller(2))
 }

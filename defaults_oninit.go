@@ -25,5 +25,5 @@ var (
 func OnInit(f func()) { OnInitFunc.Get()(f) }
 
 func oninit(f func()) {
-	logwarn("system does not set the init function register", "caller", caller(2))
+	logwarn("system does not set the init function register", "caller", GetCaller(2))
 }

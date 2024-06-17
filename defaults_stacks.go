@@ -26,6 +26,8 @@ var (
 
 	// GetStacksFunc is used to get the stacks of the function calling.
 	GetStacksFunc = NewValueWithValidation(getStacks, fA1R1Validation[int, []string]("GetStacks"))
+
+	GetCallerFunc = NewValueWithValidation(getCaller, fA1R1Validation[int, string]("GetCaller"))
 )
 
 // GetStacks is the proxy of GetStacksFunc to call the funciton.
@@ -70,9 +72,13 @@ func trimPkgFile(file string) string {
 	return file
 }
 
-func caller(skip int) (caller string) {
+func GetCaller(skip int) string {
+	return GetCallerFunc.Get()(skip + 3)
+}
+
+func getCaller(skip int) string {
 	pcs := make([]uintptr, 1)
-	if n := runtime.Callers(skip+2, pcs); n > 0 {
+	if n := runtime.Callers(skip, pcs); n > 0 {
 		frame, _ := runtime.CallersFrames(pcs).Next()
 		if frame.PC != 0 {
 			return fmtframe(frame)

@@ -58,3 +58,11 @@ func ExampleTrimPkgFile() {
 	// github.com/xgfone/go-defaults/modfile.go
 	// /path/to/github.com/xgfone/go-defaults/modfile.go
 }
+
+func TestGetCaller(t *testing.T) {
+	caller := GetCaller(0)
+	expect := "github.com/xgfone/go-defaults/defaults_stacks_test.go:TestGetCaller:63"
+	if caller != expect {
+		t.Errorf("expect '%s', but got '%s'", expect, caller)
+	}
+}

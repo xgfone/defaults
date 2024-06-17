@@ -32,12 +32,12 @@ func logwarn(msg string, kvs ...any) {
 
 func logset() {
 	if isdebug {
-		slog.Info("set the default", "caller", caller(2))
+		slog.Info("set the default", "caller", GetCaller(2))
 	}
 }
 
 func logswap() {
 	if isdebug {
-		slog.Info("swap the default", "caller", caller(2))
+		slog.Info("swap the default", "caller", GetCaller(2))
 	}
 }
