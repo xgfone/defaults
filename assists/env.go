@@ -12,24 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package defaults
+package assists
 
 import (
-	"log/slog"
-
-	"github.com/xgfone/go-defaults/assists"
+	"os"
+	"strconv"
 )
 
-func loginfo(msg string, kvs ...any) {
-	if assists.DEBUG {
-		slog.Info(msg, kvs...)
-	}
-}
+var DEBUG bool
 
-func logset() {
-	loginfo("set the default", "caller", GetCaller(2))
-}
-
-func logswap() {
-	loginfo("swap the default", "caller", GetCaller(2))
+func init() {
+	DEBUG, _ = strconv.ParseBool(os.Getenv("DEBUG"))
 }

@@ -17,6 +17,8 @@ package defaults
 import (
 	"context"
 	"os"
+
+	"github.com/xgfone/go-defaults/assists"
 )
 
 var (
@@ -35,9 +37,6 @@ var (
 	//
 	// Default: <-ExitContext().Done()
 	ExitWaitFunc = NewValueWithValidation(exitwait, fValidation("ExitWait"))
-
-	// OnExitFunc is used to register the exit function.
-	OnExitFunc = NewValueWithValidation(onexit, fA1Validation[func()]("OnExit"))
 )
 
 // Exit is the proxy of ExitFunc to call the function to exit the program.
@@ -53,11 +52,7 @@ func ExitWait() { ExitWaitFunc.Get()() }
 
 func exitwait() { <-ExitContext().Done() }
 
-// OnExit is the proxy of OnExitFunc to register the exit function f.
-//
-// NOTICE: OnExitFunc must be set before calling this function.
-func OnExit(f func()) { OnExitFunc.Get()(f) }
-
-func onexit(f func()) {
-	logwarn("system does not set the exit function register", "caller", GetCaller(2))
+// OnExit registers the exit function f, which is the proxy of assists.OnExit.
+func OnExit(f func()) {
+	assists.OnExit(1, f)
 }

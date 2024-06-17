@@ -14,16 +14,13 @@
 
 package defaults
 
-var (
-	// OnInitFunc is used to register the init function.
-	OnInitFunc = NewValueWithValidation(oninit, fA1Validation[func()]("OnInit"))
-)
+import "github.com/xgfone/go-defaults/assists"
 
-// OnInit is the proxy of OnInitFunc to register the init function f.
-//
-// NOTICE: OnInitFunc must be set before calling this function.
-func OnInit(f func()) { OnInitFunc.Get()(f) }
+func init() {
+	assists.TrimPkgFile = TrimPkgFile
+}
 
-func oninit(f func()) {
-	logwarn("system does not set the init function register", "caller", GetCaller(2))
+// OnInit registers the init function f, which is the proxy of assists.OnInit.
+func OnInit(f func()) {
+	assists.OnInit(1, f)
 }
