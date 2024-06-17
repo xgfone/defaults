@@ -35,8 +35,8 @@ var (
 
 	// ExitWaitFunc is used to wait until the program exit.
 	//
-	// Default: <-ExitContext().Done()
-	ExitWaitFunc = NewValueWithValidation(exitwait, fValidation("ExitWait"))
+	// Default: assists.WaitExit
+	ExitWaitFunc = NewValueWithValidation(assists.WaitExit, fValidation("ExitWait"))
 
 	// ExitSignalsFunc is used to get the signals to let the program exit.
 	//
@@ -67,8 +67,6 @@ func exitSignalsFunc() []os.Signal { return exitsignals }
 // ExitWait is the proxy of ExitContextFunc to call it
 // to wait until the program exit.
 func ExitWait() { ExitWaitFunc.Get()() }
-
-func exitwait() { <-ExitContext().Done() }
 
 // OnExit registers the exit function f, which is the proxy of assists.OnExit.
 func OnExit(f func()) {

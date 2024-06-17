@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log/slog"
 	"runtime"
+	"sync/atomic"
 )
 
 var TrimPkgFile func(string) string
@@ -25,13 +26,25 @@ var TrimPkgFile func(string) string
 var (
 	initfuncs []function
 	exitfuncs []function
+
+	exitednum uint32
+	exitedch  = make(chan struct{})
 )
 
 func OnInit(skip int, f func()) { initfuncs = register(initfuncs, "init", skip+1, f) }
 func OnExit(skip int, f func()) { exitfuncs = register(exitfuncs, "init", skip+1, f) }
 
 func RunInit() { runinits(initfuncs) }
-func RunExit() { runexits(exitfuncs) }
+func RunExit() { tryrunexit() }
+
+func WaitExit() { <-exitedch }
+
+func tryrunexit() {
+	if atomic.CompareAndSwapUint32(&exitednum, 0, 1) {
+		runexits(exitfuncs)
+		close(exitedch)
+	}
+}
 
 type function struct {
 	Func func()
@@ -40,12 +53,7 @@ type function struct {
 }
 
 func (f function) runinit() { f.print("init"); f.Func() }
-func (f function) runexit() { defer f.recover(); f.print("exit"); f.Func() }
-func (f function) recover() {
-	if r := recover(); r != nil {
-		slog.Error("exit func panics", "file", f.File, "line", f.Line, "panic", r)
-	}
-}
+func (f function) runexit() { f.print("exit"); f.Func() }
 
 func (f function) print(ftype string) {
 	if DEBUG {
@@ -61,8 +69,17 @@ func runinits(funcs []function) {
 
 func runexits(funcs []function) {
 	for _len := len(funcs) - 1; _len >= 0; _len-- {
-		funcs[_len].runexit()
+		saferun(funcs[_len].runexit)
 	}
+}
+
+func saferun(f func()) {
+	defer func() {
+		if r := recover(); r != nil {
+			slog.Error("wrap a panic", "panic", r)
+		}
+	}()
+	f()
 }
 
 func register(funcs []function, ftype string, skip int, f func()) []function {
