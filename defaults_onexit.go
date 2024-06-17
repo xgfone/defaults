@@ -37,6 +37,19 @@ var (
 	//
 	// Default: <-ExitContext().Done()
 	ExitWaitFunc = NewValueWithValidation(exitwait, fValidation("ExitWait"))
+
+	// ExitSignalsFunc is used to get the signals to let the program exit.
+	//
+	// For default, on Unix/Linux or Windows, it contains the signals as follow:
+	//
+	//	os.Interrupt
+	//	syscall.SIGTERM
+	//	syscall.SIGQUIT
+	//	syscall.SIGABRT
+	//	syscall.SIGINT
+	//
+	// On others, it only contains the signal os.Interrupt.
+	ExitSignalsFunc = NewValueWithValidation(exitSignalsFunc, fR1Validation[[]os.Signal]("ExitSignals"))
 )
 
 // Exit is the proxy of ExitFunc to call the function to exit the program.
@@ -45,6 +58,11 @@ func Exit(code int) { ExitFunc.Get()(code) }
 // ExitContext is the proxy of ExitContextFunc to call it to get a context
 // which is cancelled before the program exits.
 func ExitContext() context.Context { return ExitContextFunc.Get()() }
+
+// ExitSignals is the proxy of ExitSignalsFunc to call it to get the exit signals.
+func ExitSignals() []os.Signal { return ExitSignalsFunc.Get()() }
+
+func exitSignalsFunc() []os.Signal { return exitsignals }
 
 // ExitWait is the proxy of ExitContextFunc to call it
 // to wait until the program exit.
