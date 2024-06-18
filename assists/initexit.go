@@ -42,11 +42,10 @@ func RunInit() {
 /// ----------------------------------------------------------------------- ///
 
 var (
-	exitlock  sync.Mutex
-	exitfuncs []func()
-	exited    bool
-
+	exitfuncs  []func()
 	cleanfuncs []func()
+	exitonce   sync.Once
+	exitedch   = make(chan struct{})
 )
 
 // OnClean registers a function called after calling exit functions.
@@ -61,15 +60,18 @@ func OnExit(f func()) {
 	_traceregister("exit", 2)
 }
 
+func WaitExit() { <-exitedch }
+
 // RunExit calls the exit functions in reverse turn.
 func RunExit() {
-	exitlock.Lock()
-	defer exitlock.Unlock()
-	if !exited {
-		exited = true
-		reverseIter(exitfuncs, runexit)
-		reverseIter(cleanfuncs, runexit)
-	}
+	exitonce.Do(exit)
+	WaitExit()
+}
+
+func exit() {
+	reverseIter(exitfuncs, runexit)
+	reverseIter(cleanfuncs, runexit)
+	close(exitedch)
 }
 
 func runexit(f func()) {
@@ -90,7 +92,8 @@ func init() { OnClean(func() { time.Sleep(time.Millisecond * 10) }) }
 func _traceregister(kind string, skip int) {
 	if DEBUG {
 		file, line := getfileline(skip + 2)
-		fmt.Printf("register %s function: file=%s, line=%d\n", kind, file, line)
+		msg := fmt.Sprintf("register %s function", kind)
+		slog.Info(msg, "file", file, "line", line)
 	}
 }
 

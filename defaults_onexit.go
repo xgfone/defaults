@@ -28,8 +28,8 @@ var (
 
 	// ExitWaitFunc is used to wait until the program exit.
 	//
-	// Default: assists.RunExit
-	ExitWaitFunc = NewValueWithValidation(assists.RunExit, fValidation("ExitWait"))
+	// Default: assists.WaitExit
+	ExitWaitFunc = NewValueWithValidation(assists.WaitExit, fValidation("ExitWait"))
 
 	// ExitSignalsFunc is used to get the signals to let the program exit.
 	//
