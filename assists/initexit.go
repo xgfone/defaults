@@ -18,81 +18,83 @@ import (
 	"fmt"
 	"log/slog"
 	"runtime"
-	"sync/atomic"
+	"sync"
+	"time"
 )
 
-var TrimPkgFile func(string) string
+var TrimPkgFile = func(file string) string { return file }
+
+/// ----------------------------------------------------------------------- ///
+
+var initfuncs []func()
+
+// OnInit registers a function called when calling RunInit().
+func OnInit(f func()) {
+	initfuncs = append(initfuncs, f)
+	_traceregister("init", 2)
+}
+
+// RunInit calls the init functions in turn.
+func RunInit() {
+	iter(initfuncs, func(f func()) { f() })
+}
+
+/// ----------------------------------------------------------------------- ///
 
 var (
-	initfuncs []function
-	exitfuncs []function
+	exitlock  sync.Mutex
+	exitfuncs []func()
+	exited    bool
 
-	exitednum uint32
-	exitedch  = make(chan struct{})
+	cleanfuncs []func()
 )
 
-func OnInit(skip int, f func()) { initfuncs = register(initfuncs, "init", skip+1, f) }
-func OnExit(skip int, f func()) { exitfuncs = register(exitfuncs, "init", skip+1, f) }
+// OnClean registers a function called after calling exit functions.
+func OnClean(f func()) {
+	cleanfuncs = append(cleanfuncs, f)
+	_traceregister("clean", 1)
+}
 
-func RunInit() { runinits(initfuncs) }
-func RunExit() { tryrunexit() }
+// OnExit registers a function called when calling RunExit().
+func OnExit(f func()) {
+	exitfuncs = append(exitfuncs, f)
+	_traceregister("exit", 2)
+}
 
-func WaitExit() { <-exitedch }
-
-func tryrunexit() {
-	if atomic.CompareAndSwapUint32(&exitednum, 0, 1) {
-		runexits(exitfuncs)
-		close(exitedch)
+// RunExit calls the exit functions in reverse turn.
+func RunExit() {
+	exitlock.Lock()
+	defer exitlock.Unlock()
+	if !exited {
+		exited = true
+		reverseIter(exitfuncs, runexit)
+		reverseIter(cleanfuncs, runexit)
 	}
 }
 
-type function struct {
-	Func func()
-	File string
-	Line int
-}
-
-func (f function) runinit() { f.print("init"); f.Func() }
-func (f function) runexit() { f.print("exit"); f.Func() }
-
-func (f function) print(ftype string) {
-	if DEBUG {
-		slog.Info(fmt.Sprintf("run %s func", ftype), "file", f.File, "line", f.Line)
-	}
-}
-
-func runinits(funcs []function) {
-	for i := range funcs {
-		funcs[i].runinit()
-	}
-}
-
-func runexits(funcs []function) {
-	for _len := len(funcs) - 1; _len >= 0; _len-- {
-		saferun(funcs[_len].runexit)
-	}
-}
-
-func saferun(f func()) {
-	defer func() {
-		if r := recover(); r != nil {
-			slog.Error("wrap a panic", "panic", r)
-		}
-	}()
+func runexit(f func()) {
+	defer exitrecover()
 	f()
 }
 
-func register(funcs []function, ftype string, skip int, f func()) []function {
-	if f == nil {
-		panic(ftype + " function is nil")
+func exitrecover() {
+	if r := recover(); r != nil {
+		slog.Error("exit func panics", "panic", r)
 	}
-
-	file, line := getFileLine(skip + 2)
-	funcs = append(funcs, function{Func: f, Line: line, File: file})
-	return funcs
 }
 
-func getFileLine(skip int) (file string, line int) {
+func init() { OnClean(func() { time.Sleep(time.Millisecond * 10) }) }
+
+/// ----------------------------------------------------------------------- ///
+
+func _traceregister(kind string, skip int) {
+	if DEBUG {
+		file, line := getfileline(skip + 2)
+		fmt.Printf("register %s function: file=%s, line=%d\n", kind, file, line)
+	}
+}
+
+func getfileline(skip int) (file string, line int) {
 	_, file, line, ok := runtime.Caller(skip)
 	if ok {
 		file = TrimPkgFile(file)

@@ -24,8 +24,8 @@ import (
 var (
 	// ExitFunc is used to exit the program.
 	//
-	// Default: os.Exit
-	ExitFunc = NewValueWithValidation(os.Exit, fA1Validation[int]("Exit"))
+	// Default: calling assists.RunExit and os.Exit in turn.
+	ExitFunc = NewValueWithValidation(exit, fA1Validation[int]("Exit"))
 
 	// ExitContextFunc is used to get a context
 	// which is cancelled before the program exits.
@@ -35,8 +35,8 @@ var (
 
 	// ExitWaitFunc is used to wait until the program exit.
 	//
-	// Default: assists.WaitExit
-	ExitWaitFunc = NewValueWithValidation(assists.WaitExit, fValidation("ExitWait"))
+	// Default: assists.RunExit
+	ExitWaitFunc = NewValueWithValidation(assists.RunExit, fValidation("ExitWait"))
 
 	// ExitSignalsFunc is used to get the signals to let the program exit.
 	//
@@ -51,6 +51,11 @@ var (
 	// On others, it only contains the signal os.Interrupt.
 	ExitSignalsFunc = NewValueWithValidation(exitSignalsFunc, fR1Validation[[]os.Signal]("ExitSignals"))
 )
+
+func exit(code int) {
+	assists.RunExit()
+	os.Exit(code)
+}
 
 // Exit is the proxy of ExitFunc to call the function to exit the program.
 func Exit(code int) { ExitFunc.Get()(code) }
@@ -69,6 +74,4 @@ func exitSignalsFunc() []os.Signal { return exitsignals }
 func ExitWait() { ExitWaitFunc.Get()() }
 
 // OnExit registers the exit function f, which is the proxy of assists.OnExit.
-func OnExit(f func()) {
-	assists.OnExit(1, f)
-}
+func OnExit(f func()) { assists.OnExit(f) }

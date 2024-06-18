@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package defaults
+package assists
 
-import "github.com/xgfone/go-defaults/assists"
-
-func init() {
-	assists.TrimPkgFile = TrimPkgFile
+func iter[S ~[]E, E any](s S, f func(E)) {
+	for _, e := range s {
+		f(e)
+	}
 }
 
-// OnInit registers the init function f, which is the proxy of assists.OnInit.
-func OnInit(f func()) { assists.OnInit(f) }
+func reverseIter[S ~[]E, E any](s S, f func(E)) {
+	for _len := len(s) - 1; _len >= 0; _len-- {
+		f(s[_len])
+	}
+}
