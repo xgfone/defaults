@@ -15,7 +15,6 @@
 package defaults
 
 import (
-	"context"
 	"os"
 
 	"github.com/xgfone/go-defaults/assists"
@@ -26,12 +25,6 @@ var (
 	//
 	// Default: calling assists.RunExit and os.Exit in turn.
 	ExitFunc = NewValueWithValidation(exit, fA1Validation[int]("Exit"))
-
-	// ExitContextFunc is used to get a context
-	// which is cancelled before the program exits.
-	//
-	// Default: context.Background
-	ExitContextFunc = NewValueWithValidation(context.Background, fR1Validation[context.Context]("ExitContext"))
 
 	// ExitWaitFunc is used to wait until the program exit.
 	//
@@ -59,10 +52,6 @@ func exit(code int) {
 
 // Exit is the proxy of ExitFunc to call the function to exit the program.
 func Exit(code int) { ExitFunc.Get()(code) }
-
-// ExitContext is the proxy of ExitContextFunc to call it to get a context
-// which is cancelled before the program exits.
-func ExitContext() context.Context { return ExitContextFunc.Get()() }
 
 // ExitSignals is the proxy of ExitSignalsFunc to call it to get the exit signals.
 func ExitSignals() []os.Signal { return ExitSignalsFunc.Get()() }
