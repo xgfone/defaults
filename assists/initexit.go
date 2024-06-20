@@ -48,10 +48,10 @@ var (
 	exitedch   = make(chan struct{})
 )
 
-// OnClean registers a function called after calling exit functions.
-func OnClean(f func()) {
+// OnExitPost registers a function called after calling exit functions.
+func OnExitPost(f func()) {
 	cleanfuncs = append(cleanfuncs, f)
-	_traceregister("clean", 1)
+	_traceregister("exitpost", 1)
 }
 
 // OnExit registers a function called when calling RunExit().
@@ -85,7 +85,7 @@ func exitrecover() {
 	}
 }
 
-func init() { OnClean(func() { time.Sleep(time.Millisecond * 10) }) }
+func init() { OnExitPost(func() { time.Sleep(time.Millisecond * 10) }) }
 
 /// ----------------------------------------------------------------------- ///
 
