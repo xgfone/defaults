@@ -73,3 +73,6 @@ func ExitWait() { ExitWaitFunc.Get()() }
 
 // OnExit registers the exit function f, which is the proxy of assists.OnExit.
 func OnExit(f func()) { assists.OnExit(f) }
+
+// OnExitPost registers the post-exit function f, which is the proxy of assists.OnExitPost.
+func OnExitPost(f func()) { assists.OnExitPost(f) }

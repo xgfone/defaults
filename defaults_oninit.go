@@ -18,3 +18,6 @@ import "github.com/xgfone/go-defaults/assists"
 
 // OnInit registers the init function f, which is the proxy of assists.OnInit.
 func OnInit(f func()) { assists.OnInit(f) }
+
+// OnInitPre registers the pre-init function f, which is the proxy of assists.OnInitPre.
+func OnInitPre(f func()) { assists.OnInitPre(f) }
