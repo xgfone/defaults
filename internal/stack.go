@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package defaults
+package internal
 
-import "github.com/xgfone/go-defaults/assists"
-
-// OnInit registers the init function f, which is the proxy of assists.OnInit.
-func OnInit(f func()) { assists.OnInit(f) }
+var TrimPkgFile = func(file string) string { return file }

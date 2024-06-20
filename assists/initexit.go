@@ -20,9 +20,9 @@ import (
 	"runtime"
 	"sync"
 	"time"
-)
 
-var TrimPkgFile = func(file string) string { return file }
+	"github.com/xgfone/go-defaults/internal"
+)
 
 /// ----------------------------------------------------------------------- ///
 
@@ -111,7 +111,7 @@ func _traceregister(kind string, skip int) {
 func getfileline(skip int) (file string, line int) {
 	_, file, line, ok := runtime.Caller(skip)
 	if ok {
-		file = TrimPkgFile(file)
+		file = internal.TrimPkgFile(file)
 	} else {
 		file = "???"
 	}

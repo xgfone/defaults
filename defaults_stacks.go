@@ -18,7 +18,11 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+
+	"github.com/xgfone/go-defaults/internal"
 )
+
+func init() { internal.TrimPkgFile = TrimPkgFile }
 
 var (
 	// TrimPkgFileFunc is used to trim the prefix of the package file path.
