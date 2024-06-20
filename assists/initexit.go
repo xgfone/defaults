@@ -26,17 +26,28 @@ var TrimPkgFile = func(file string) string { return file }
 
 /// ----------------------------------------------------------------------- ///
 
-var initfuncs []func()
+var (
+	init0funcs []func()
+	init1funcs []func()
+)
 
-// OnInit registers a function called when calling RunInit().
+// OnInitPre registers a pre-init function called before calling init functions
+// when calling RunInit().
+func OnInitPre(f func()) {
+	init0funcs = append(init0funcs, f)
+	_traceregister("init0", 2)
+}
+
+// OnInit registers an init function called when calling RunInit().
 func OnInit(f func()) {
-	initfuncs = append(initfuncs, f)
-	_traceregister("init", 2)
+	init1funcs = append(init1funcs, f)
+	_traceregister("init1", 2)
 }
 
 // RunInit calls the init functions in turn.
 func RunInit() {
-	iter(initfuncs, func(f func()) { f() })
+	iter(init0funcs, func(f func()) { f() })
+	iter(init1funcs, func(f func()) { f() })
 }
 
 /// ----------------------------------------------------------------------- ///
