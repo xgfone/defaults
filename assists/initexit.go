@@ -15,6 +15,7 @@
 package assists
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"runtime"
@@ -57,6 +58,8 @@ var (
 	cleanfuncs []func()
 	exitonce   sync.Once
 	exitedch   = make(chan struct{})
+
+	exitctx, exitcancel = context.WithCancel(context.Background())
 )
 
 // OnExitPost registers a function called after calling exit functions.
@@ -71,6 +74,10 @@ func OnExit(f func()) {
 	_traceregister("exit", 2)
 }
 
+// ExitContext returns a context that it will be cancelled when calling RunExit.
+func ExitContext() context.Context { return exitctx }
+
+// WaitExit waits until all exit functions finish to be called.
 func WaitExit() { <-exitedch }
 
 // RunExit calls the exit functions in reverse turn.
@@ -80,6 +87,7 @@ func RunExit() {
 }
 
 func exit() {
+	exitcancel()
 	reverseIter(exitfuncs, runexit)
 	reverseIter(cleanfuncs, runexit)
 	close(exitedch)
