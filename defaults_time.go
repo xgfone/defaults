@@ -40,6 +40,12 @@ func Unix(sec, nsec int64) time.Time {
 	return time.Unix(sec, nsec).In(TimeLocation.Get())
 }
 
+// Today returns the today time starting with 00:00:00.
+func Today() time.Time {
+	now := Now()
+	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+}
+
 func validateTimeNow(f func() time.Time) error {
 	if f == nil {
 		return errors.New("TimeNow: the time now function must not be nil")
