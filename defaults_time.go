@@ -19,6 +19,11 @@ import (
 	"time"
 )
 
+const (
+	Day  = time.Hour * 24
+	Week = Day * 7
+)
+
 // Pre-define some global variables about time.
 var (
 	TimeFormat   = NewValueWithValidation(time.RFC3339Nano, validateTimeFormat)
