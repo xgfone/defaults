@@ -1,4 +1,4 @@
-// Copyright 2023 xgfone
+// Copyright 2023~2024 xgfone
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,11 @@ var (
 
 // Now returns the current time by using TimeNow and TimeLocation.
 func Now() time.Time { return TimeNowFunc.Get()().In(TimeLocation.Get()) }
+
+// Unix is the same as time.Unix, but set the location with TimeLocation.
+func Unix(sec, nsec int64) time.Time {
+	return time.Unix(sec, nsec).In(TimeLocation.Get())
+}
 
 func validateTimeNow(f func() time.Time) error {
 	if f == nil {
