@@ -85,15 +85,12 @@ func ConvertAddr(netaddr net.Addr) (addr netip.Addr) {
 func IP2Addr(ip net.IP) (addr netip.Addr) {
 	switch len(ip) {
 	case net.IPv4len:
-		addr = netip.AddrFrom4(*(*[4]byte)(ip))
-		// addr = netip.AddrFrom4([4]byte(ip)) // 1.20+
+		addr = netip.AddrFrom4([4]byte(ip))
 	case net.IPv6len:
 		if ipv4 := ip.To4(); ipv4 != nil {
-			addr = netip.AddrFrom4(*(*[4]byte)(ipv4))
-			// addr = netip.AddrFrom4([4]byte(ipv4)) // 1.20+
+			addr = netip.AddrFrom4([4]byte(ipv4))
 		} else {
-			addr = netip.AddrFrom16(*(*[16]byte)(ip))
-			// addr = netip.AddrFrom16([16]byte(ip)) // 1.20+
+			addr = netip.AddrFrom16([16]byte(ip))
 		}
 	}
 	return
