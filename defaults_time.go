@@ -17,11 +17,8 @@ package defaults
 import (
 	"errors"
 	"time"
-)
 
-const (
-	Day  = time.Hour * 24
-	Week = Day * 7
+	"github.com/xgfone/go-toolkit/timex"
 )
 
 // Pre-define some global variables about time.
@@ -42,8 +39,7 @@ func Unix(sec, nsec int64) time.Time {
 
 // Today returns the today time starting with 00:00:00.
 func Today() time.Time {
-	now := Now()
-	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	return timex.Today().In(TimeLocation.Get())
 }
 
 func validateTimeNow(f func() time.Time) error {

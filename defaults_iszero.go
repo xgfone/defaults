@@ -14,7 +14,7 @@
 
 package defaults
 
-import "reflect"
+import "github.com/xgfone/go-toolkit/runtimex"
 
 var (
 	// IsZeroFunc is used to check whether a value is ZERO.
@@ -22,52 +22,8 @@ var (
 	// For the default implementation, it also supports
 	//    interface{ IsZero() bool }
 	//
-	IsZeroFunc = NewValueWithValidation(iszero, fA1R1Validation[any, bool]("IsZero"))
+	IsZeroFunc = NewValueWithValidation(runtimex.IsZero, fA1R1Validation[any, bool]("IsZero"))
 )
 
 // IsZero is the proxy of IsZeroFunc to call it.
 func IsZero(value any) bool { return IsZeroFunc.Get()(value) }
-
-func iszero(value any) bool {
-	switch v := value.(type) {
-	case nil:
-		return true
-	case bool:
-		return !v
-	case string:
-		return v == ""
-	case int:
-		return v == 0
-	case int8:
-		return v == 0
-	case int16:
-		return v == 0
-	case int32:
-		return v == 0
-	case int64:
-		return v == 0
-	case uint:
-		return v == 0
-	case uint8:
-		return v == 0
-	case uint16:
-		return v == 0
-	case uint32:
-		return v == 0
-	case uint64:
-		return v == 0
-	case uintptr:
-		return v == 0
-	case float32:
-		return v == 0
-	case float64:
-		return v == 0
-	case []byte:
-		return v == nil
-	case interface{ IsZero() bool }:
-		return v.IsZero()
-	default:
-		rvalue := reflect.ValueOf(value)
-		return !rvalue.IsValid() || rvalue.IsZero()
-	}
-}

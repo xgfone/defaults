@@ -18,6 +18,7 @@ import (
 	"log/slog"
 
 	"github.com/xgfone/go-defaults/assists"
+	"github.com/xgfone/go-toolkit/runtimex"
 )
 
 func loginfo(msg string, kvs ...any) {
@@ -27,9 +28,9 @@ func loginfo(msg string, kvs ...any) {
 }
 
 func logset() {
-	loginfo("set the default", "caller", GetCaller(2))
+	loginfo("set the default", "caller", runtimex.Caller(0))
 }
 
 func logswap() {
-	loginfo("swap the default", "caller", GetCaller(2))
+	loginfo("swap the default", "caller", runtimex.Caller(0))
 }

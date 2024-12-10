@@ -17,6 +17,8 @@ package defaults
 import (
 	"context"
 	"log/slog"
+
+	"github.com/xgfone/go-toolkit/runtimex"
 )
 
 var (
@@ -30,7 +32,7 @@ func HandlePanic(ctx context.Context, r any) {
 }
 
 func handlePanic(ctx context.Context, r any) {
-	slog.Error("wrap a panic", "panic", r, "stacks", GetStacks(2))
+	slog.Error("wrap a panic", "panic", r, "stacks", runtimex.Stacks(4))
 }
 
 // Recover is a convenient function to wrap and recover the panic if occurring,

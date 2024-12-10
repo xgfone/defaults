@@ -1,3 +1,5 @@
 module github.com/xgfone/go-defaults
 
-go 1.21
+require github.com/xgfone/go-toolkit v0.1.0
+
+go 1.22

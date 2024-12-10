@@ -18,11 +18,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"runtime"
 	"sync"
 	"time"
 
-	"github.com/xgfone/go-defaults/internal"
+	"github.com/xgfone/go-toolkit/runtimex"
 )
 
 /// ----------------------------------------------------------------------- ///
@@ -36,13 +35,13 @@ var (
 // when calling RunInit().
 func OnInitPre(f func()) {
 	init0funcs = append(init0funcs, f)
-	_traceregister("init0", 2)
+	_traceregister("init0")
 }
 
 // OnInit registers an init function called when calling RunInit().
 func OnInit(f func()) {
 	init1funcs = append(init1funcs, f)
-	_traceregister("init1", 2)
+	_traceregister("init1")
 }
 
 // RunInit calls the init functions in turn.
@@ -65,13 +64,13 @@ var (
 // OnExitPost registers a function called after calling exit functions.
 func OnExitPost(f func()) {
 	cleanfuncs = append(cleanfuncs, f)
-	_traceregister("exitpost", 1)
+	_traceregister("exitpost")
 }
 
 // OnExit registers a function called when calling RunExit().
 func OnExit(f func()) {
 	exitfuncs = append(exitfuncs, f)
-	_traceregister("exit", 2)
+	_traceregister("exit")
 }
 
 // ExitContext returns a context that it will be cancelled when calling RunExit.
@@ -108,20 +107,10 @@ func init() { OnExitPost(func() { time.Sleep(time.Millisecond * 10) }) }
 
 /// ----------------------------------------------------------------------- ///
 
-func _traceregister(kind string, skip int) {
+func _traceregister(kind string) {
 	if DEBUG {
-		file, line := getfileline(skip + 2)
+		frame := runtimex.Caller(2)
 		msg := fmt.Sprintf("register %s function", kind)
-		slog.Info(msg, "file", file, "line", line)
+		slog.Info(msg, "file", frame.File, "line", frame.Line)
 	}
-}
-
-func getfileline(skip int) (file string, line int) {
-	_, file, line, ok := runtime.Caller(skip)
-	if ok {
-		file = internal.TrimPkgFile(file)
-	} else {
-		file = "???"
-	}
-	return
 }

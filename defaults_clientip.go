@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"net/netip"
 
-	"github.com/xgfone/go-defaults/assists"
+	"github.com/xgfone/go-toolkit/netx"
 )
 
 var (
@@ -54,20 +54,52 @@ func getClientIP(ctx context.Context, req any) (addr netip.Addr) {
 		addr, _ = netip.AddrFromSlice(v.ClientIP())
 
 	case interface{ ClientIP() string }:
-		addr, _ = netip.ParseAddr(assists.TrimPort(v.ClientIP()))
+		host, _ := netx.SplitHostPort(v.ClientIP())
+		addr, _ = netip.ParseAddr(host)
 
 	case interface{ RemoteAddr() netip.Addr }:
 		addr = v.RemoteAddr()
 
 	case interface{ RemoteAddr() net.Addr }:
-		addr = assists.ConvertAddr(v.RemoteAddr())
+		addr = netaddr2netipaddr(v.RemoteAddr())
 
 	case interface{ RemoteAddr() string }:
-		addr, _ = netip.ParseAddr(assists.TrimPort(v.RemoteAddr()))
+		host, _ := netx.SplitHostPort(v.RemoteAddr())
+		addr, _ = netip.ParseAddr(host)
 
 	case *http.Request:
-		addr, _ = netip.ParseAddr(assists.TrimPort(v.RemoteAddr))
+		host, _ := netx.SplitHostPort(v.RemoteAddr)
+		addr, _ = netip.ParseAddr(host)
 	}
 
+	return
+}
+
+func netaddr2netipaddr(netaddr net.Addr) (addr netip.Addr) {
+	switch v := netaddr.(type) {
+	case *net.TCPAddr:
+		addr = ip2addr(v.IP)
+
+	case *net.UDPAddr:
+		addr = ip2addr(v.IP)
+
+	default:
+		host, _ := netx.SplitHostPort(v.String())
+		addr, _ = netip.ParseAddr(host)
+	}
+	return
+}
+
+func ip2addr(ip net.IP) (addr netip.Addr) {
+	switch len(ip) {
+	case net.IPv4len:
+		addr = netip.AddrFrom4([4]byte(ip))
+	case net.IPv6len:
+		if ipv4 := ip.To4(); ipv4 != nil {
+			addr = netip.AddrFrom4([4]byte(ipv4))
+		} else {
+			addr = netip.AddrFrom16([16]byte(ip))
+		}
+	}
 	return
 }
