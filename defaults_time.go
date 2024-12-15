@@ -39,7 +39,7 @@ func Unix(sec, nsec int64) time.Time {
 
 // Today returns the today time starting with 00:00:00.
 func Today() time.Time {
-	return timex.Today().In(TimeLocation.Get())
+	return timex.ToToday(Now())
 }
 
 func validateTimeNow(f func() time.Time) error {
