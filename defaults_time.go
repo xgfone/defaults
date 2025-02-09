@@ -15,62 +15,43 @@
 package defaults
 
 import (
-	"errors"
 	"time"
 
 	"github.com/xgfone/go-toolkit/timex"
 )
 
-// Pre-define some global variables about time.
 var (
-	TimeFormat   = NewValueWithValidation(time.RFC3339Nano, validateTimeFormat)
-	TimeFormats  = NewValueWithValidation([]string{time.RFC3339Nano, "2006-01-02 15:04:05"}, validateTimeFormats)
-	TimeLocation = NewValueWithValidation(time.UTC, validateTimeLocation)
-	TimeNowFunc  = NewValueWithValidation(time.Now, validateTimeNow)
+	// DEPRECATED!!! Please use timex.Format instead.
+	TimeFormat = NewValue(timex.Format)
+
+	// DEPRECATED!!! Please use timex.Formats instead.
+	TimeFormats = NewValue(timex.Formats)
+
+	// DEPRECATED!!! Please use timex.Now instead.
+	TimeNowFunc = NewValue(timex.Now)
+
+	// DEPRECATED!!! Please use timex.Location instead.
+	TimeLocation = NewValue(timex.Location)
 )
 
-// Now returns the current time by using TimeNow and TimeLocation.
-func Now() time.Time { return TimeNowFunc.Get()().In(TimeLocation.Get()) }
-
-// Unix is the same as time.Unix, but set the location with TimeLocation.
-func Unix(sec, nsec int64) time.Time {
-	return time.Unix(sec, nsec).In(TimeLocation.Get())
+func init() {
+	TimeFormat.update = func(new string) { timex.Format = new }
+	TimeFormats.update = func(new []string) { timex.Formats = new }
+	TimeNowFunc.update = func(new func() time.Time) { timex.Now = new }
+	TimeLocation.update = func(new *time.Location) { timex.Location = new }
 }
 
-// Today returns the today time starting with 00:00:00.
-func Today() time.Time {
-	return timex.ToToday(Now())
-}
+// Now is eqaul to timex.Now.
+//
+// DEPRECATED!!! Please use timex.Now instead.
+func Now() time.Time { return timex.Now() }
 
-func validateTimeNow(f func() time.Time) error {
-	if f == nil {
-		return errors.New("TimeNow: the time now function must not be nil")
-	}
-	return nil
-}
+// Unix is eqaul to timex.Unix.
+//
+// DEPRECATED!!! Please use timex.Unix instead.
+func Unix(sec, nsec int64) time.Time { return timex.Unix(sec, nsec) }
 
-func validateTimeFormat(s string) error {
-	if s == "" {
-		return errors.New("TimeFormat: time format layout must not be empty")
-	}
-	return nil
-}
-
-func validateTimeLocation(loc *time.Location) error {
-	if loc == nil {
-		return errors.New("TimeLocation: time location must not be nil")
-	}
-	return nil
-}
-
-func validateTimeFormats(ss []string) error {
-	if len(ss) == 0 {
-		return errors.New("TimeFormats: time format layouts must not be empty")
-	}
-	for _, s := range ss {
-		if s == "" {
-			return errors.New("TimeFormats: time format layouts must not be empty")
-		}
-	}
-	return nil
-}
+// Today is eqaul to timex.Today.
+//
+// DEPRECATED!!! Please use timex.Today instead.
+func Today() time.Time { return timex.Today() }

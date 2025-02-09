@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/xgfone/go-toolkit/timex"
 )
 
 var (
@@ -412,7 +414,7 @@ func toduration(src any) (dst time.Duration, err error) {
 }
 
 func totime(src any) (dst time.Time, err error) {
-	loc := TimeLocation.Get()
+	loc := timex.Location
 	switch src := src.(type) {
 	case nil:
 		dst = dst.In(loc)
@@ -467,8 +469,7 @@ func parseDuration(src string) (dst time.Duration, err error) {
 }
 
 func parseTime(value string) (time.Time, error) {
-	loc := TimeLocation.Get()
-
+	loc := timex.Location
 	switch value {
 	case "", "0000-00-00 00:00:00", "0000-00-00 00:00:00.000", "0000-00-00 00:00:00.000000":
 		return time.Time{}.In(loc), nil
@@ -476,10 +477,10 @@ func parseTime(value string) (time.Time, error) {
 
 	if isIntegerString(value) {
 		i, err := strconv.ParseInt(value, 10, 64)
-		return time.Unix(i, 0).In(loc), err
+		return Unix(i, 0), err
 	}
 
-	for _, layout := range TimeFormats.Get() {
+	for _, layout := range timex.Formats {
 		if t, err := time.ParseInLocation(layout, value, loc); err == nil {
 			return t, nil
 		}

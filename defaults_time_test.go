@@ -18,7 +18,18 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/xgfone/go-toolkit/timex"
 )
+
+func TestLocation(t *testing.T) {
+	timex.Location = time.UTC
+	TimeLocation.Set(time.Local)
+
+	if timex.Location != time.Local {
+		t.Errorf("expect Location %s, but got %s", time.Local.String(), timex.Location.String())
+	}
+}
 
 func TestToday(t *testing.T) {
 	today := Today()

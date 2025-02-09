@@ -17,6 +17,7 @@ package defaults
 // Value represents a common value.
 type Value[T any] struct {
 	verify func(T) error
+	update func(T)
 	value  T
 }
 
@@ -44,6 +45,9 @@ func (v *Value[T]) Set(new T) {
 	}
 	v.value = new
 	logset()
+	if v.update != nil {
+		v.update(v.value)
+	}
 }
 
 // Swap sets the value to new and returns the old value.
